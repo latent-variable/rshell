@@ -10,14 +10,15 @@ class Base{
     public:
         Base(){};
         virtual void Execute() = 0;
+        bool Flag = true;
 };
 
 class Mandate : public Base{
     private:
-        bool mandateFlag;
+        bool Flag = true;
         string Executeble;
         string Connector;
-        Base* child;
+        
         
         
     public:
@@ -35,7 +36,7 @@ class Mandate : public Base{
 ////////////////////////////////
 class Command : public Base{
     private:
-        bool FlagExecute;
+        bool Flag = true;
         bool done;
         vector<Mandate*> commands;
         
@@ -57,7 +58,7 @@ class And: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool andFlag;
+        bool Flag = true;
         
     public:
         And();
@@ -71,7 +72,7 @@ class Or: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool orFlag;
+        bool Flag = true;
         
     public:
         Or(Base*, Base*);
@@ -84,7 +85,7 @@ class Semicolon: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool semiFlag;
+        bool Flag = true;
         
     public:
         Semicolon(Base*, Base*);

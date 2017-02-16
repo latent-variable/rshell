@@ -1,13 +1,10 @@
-#include <iostream>
-#include <vector> 
 #include "Execute.h"
 #include <unistd.h>
-#include <cstdlib>
-#include <string.h>
-#include <stdio.h>
-#include "Execute.h"
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <string.h>
+#include <stdio.h>
+
 
 
 using namespace std;
@@ -74,8 +71,11 @@ void Mandate::Execute()
                  count--;
             }
             args[i] = NULL;
-            if(execvp(args[0], args) == -1)
-            perror("error!");
+            if( execvp(args[0], args) == -1){
+                perror("error!");
+                this->Flag = false;
+            }
+            
         }
      
     }
@@ -87,18 +87,14 @@ void Mandate::Execute()
     
     }
 }
-void Mandate::setChild(Mandate* item){
-    
-    this->child = item;
-}
 
 void Mandate::setFlag(bool flag)
 {
-    this->mandateFlag = flag;
+    this->Flag = flag;
 }
 bool Mandate::getFlag()
 {
-    return mandateFlag;
+    return this->Flag;
 }
 void Mandate::setExecutable(string input)
 {
@@ -176,12 +172,12 @@ void Command::Execute(){
 
 void Command::setFlag(bool flag){
     
-    FlagExecute = flag;
+    this->Flag = flag;
     
 }
 bool Command::getFlag(){
     
-    return FlagExecute;
+    return this->Flag;
     
 }
 void Command::setCommand(Mandate* input){
@@ -192,11 +188,7 @@ bool Command::getexit(){
             
     return done;
 }
-void Command::setexit(bool done){
-        
-    this->done = done;
-    
-}
+
 int Command::size(){
     
     return commands.size();
@@ -219,17 +211,28 @@ And::And(Base* child1, Base* child2){
     this->child2 = child2;
 }
 void And::Execute(){
+    
+    
     child1->Execute();
-    child2->Execute();
+    if ( this->child1->Flag == true ){
+        this->child2->Execute();
+        if(this->child1->Flag == false){
+            this->Flag = false;
+        }
+    }
+    else
+        this->Flag = false;
+        
+        
 }
 void And::setFlag(bool flag){
     
-    andFlag = flag;
+    this->Flag = flag;
     
 }
 bool And::getFlag(){
     
-    return andFlag;
+    return this->Flag;
     
 }
 /////////////////////////////////////////////////////
@@ -241,14 +244,20 @@ Or::Or(Base* child1, Base* child2){
 }
 void Or::Execute(){
     child1->Execute();
-    child2->Execute();
+    if ( this->child1->Flag == false ){
+         this->child2->Execute();
+         if (this->child2->Flag == false)
+            this->Flag = false;
+    }       
+    else
+        this->Flag = false;
 }
 void Or::setFlag(bool flag){
-    orFlag = flag;
+    Flag = flag;
     
 }
 bool Or::getFlag(){
-    return orFlag;
+    return Flag;
     
 }
 //////////////////////////////////////////////////////
@@ -257,17 +266,19 @@ bool Or::getFlag(){
 Semicolon::Semicolon(Base* child1, Base* child2){
     this->child1 = child1;
     this->child2 = child2;
+    if(this->child2->Flag == false)
+        this->Flag = false;
 }
 void Semicolon::Execute(){
      child1->Execute();
      child2->Execute();
 }
 void Semicolon::setFlag(bool flag){
-    this->semiFlag=flag;    
+    this->Flag=flag;    
 
    
 }
  bool Semicolon::getFlag(){
-     return semiFlag;
+     return Flag;
      
  }

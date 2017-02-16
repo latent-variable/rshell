@@ -1,22 +1,14 @@
 ////////////////////////////////////////////////////////////////////
-//Lino Gonzalez Valdovinos
-//
-//
-
-
-
-
-
+//name1=Lino Gonzalez Valdovinos
+//ucrnetid1=lgonz041
+//name2=Rafael Gomez
+//ucrnetid2=rgome020
+//repourl=https://github.com/lgonz041/rshell.git
 #include <iostream>
-#include <vector> 
-#include <unistd.h>
 #include <cstdlib>
 #include <string.h>
 #include <stdio.h>
 #include "Execute.h"
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <boost/tokenizer.hpp>
 
 
 using namespace std;
@@ -55,7 +47,7 @@ int main(){
        
        Mandate* man = new Mandate();
       
-        if(input != "exit"){
+        if(input != "quit"){
             
             pares(cmdvec,input);
             
@@ -69,10 +61,10 @@ int main(){
                 man->Execute();
         }
         
-        //exit will end shell
+        //quit will end shell
        
     
-    }while(input != "exit");
+    }while(input != "quit");
    
     return 0;
 }
