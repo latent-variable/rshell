@@ -9,7 +9,7 @@
 
 using namespace std;
 
-//Command::Command(){}
+
 Mandate::Mandate(){ }
 Mandate::Mandate(string a, string b)
 {
@@ -49,6 +49,7 @@ void Mandate::Execute()
     if ( pid < 0  ) 
     {   
         cout <<"Error running fork."<<endl;
+       
     }
     if (pid == 0)//child
     {   
@@ -57,10 +58,10 @@ void Mandate::Execute()
             char *args[2];
             args[0]  = (char*) command.c_str();
             args[1] = NULL;
-            if(execvp(args[0], args) == -1)
-            perror("error!");
-            
-           
+            if(execvp(args[0], args) == -1){
+                perror("Error!");
+                exit(errno);
+            }
         }else{
             char *args[count -1];
             args[0]  = (char*) command.c_str();
@@ -72,8 +73,9 @@ void Mandate::Execute()
             }
             args[i] = NULL;
             if( execvp(args[0], args) == -1){
-                perror("error!");
-                this->Flag = false;
+                perror("Error!");
+                exit(errno);
+                
             }
             
         }
@@ -81,9 +83,17 @@ void Mandate::Execute()
     }
     else//parent
     {   
-         do {
+        
+         do{
+              wait(&status);
+              //if(WIFEXITED(status))
+                //cout<<"child exited with = "<<WEXITSTATUS(status)<<endl;        
+             if (WEXITSTATUS(status) > 0)
+                  this->Flag = false;
+             
              wpid = waitpid(pid, &status, WUNTRACED);
-        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        }
+        while (!WIFEXITED(status) && !WIFSIGNALED(status));
     
     }
 }
@@ -155,9 +165,7 @@ void Command::setTree(Base* item ,int i, Base*& out ){
     }
     else{
         out = item;
-       // item->Execute();
-    
-        
+ 
     }
     
 }
@@ -184,10 +192,6 @@ void Command::setCommand(Mandate* input){
             
     commands.push_back(input);
 }
-bool Command::getexit(){
-            
-    return done;
-}
 
 int Command::size(){
     
@@ -213,16 +217,23 @@ And::And(Base* child1, Base* child2){
 void And::Execute(){
     
     
-    child1->Execute();
-    if ( this->child1->Flag == true ){
-        this->child2->Execute();
-        if(this->child1->Flag == false){
-            this->Flag = false;
-        }
-    }
-    else
-        this->Flag = false;
+   if (this->child1->Flag == true ){
+        this->child1->Execute();
         
+         
+        if (this->child1->Flag == true ){
+            
+            this->child2->Execute();
+           
+            if( this->child2->Flag == false)
+                this->Flag = false;
+
+        }
+        else
+            this->Flag = false;
+   }
+    else
+        this->Flag = false;    
         
 }
 void And::setFlag(bool flag){
@@ -243,9 +254,12 @@ Or::Or(Base* child1, Base* child2){
     this->child2 = child2;
 }
 void Or::Execute(){
+    
+    
     child1->Execute();
     if ( this->child1->Flag == false ){
          this->child2->Execute();
+         
          if (this->child2->Flag == false)
             this->Flag = false;
     }       
@@ -279,6 +293,7 @@ void Semicolon::setFlag(bool flag){
    
 }
  bool Semicolon::getFlag(){
+     
      return Flag;
      
  }

@@ -10,17 +10,15 @@ class Base{
     public:
         Base(){};
         virtual void Execute() = 0;
+        
         bool Flag = true;
 };
-
 class Mandate : public Base{
     private:
-        bool Flag = true;
         string Executeble;
         string Connector;
-        
-        
-        
+        bool Flag = true;
+
     public:
         Mandate();
         Mandate(string,string);
@@ -36,8 +34,7 @@ class Mandate : public Base{
 ////////////////////////////////
 class Command : public Base{
     private:
-        bool Flag = true;
-        bool done;
+
         vector<Mandate*> commands;
         
     public:
@@ -48,8 +45,6 @@ class Command : public Base{
         void setFlag(bool);
         bool getFlag();
         void setCommand(Mandate* input);
-        bool getexit();
-        void setexit(bool done);
         int size();
         Mandate* getCommand(int);
 };
