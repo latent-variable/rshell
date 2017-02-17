@@ -14,13 +14,12 @@ using namespace std;
 
 void print();
 void pares(Command*&, string);
-///////////////////////////////////////////////////
+
 int main(){
   
     string input;
 
     do{
-        
         input = " ";
         print();
         getline(cin, input);
@@ -43,7 +42,7 @@ int main(){
         
         //quit will end shell
   
-    }while(input != "exit");
+    }while(input != "exitg");
    
     return 0;
 }
@@ -58,7 +57,7 @@ void print()
 /////////////////////////////////////////
 //Paresing function returns by refrence a 
 //vector of type Mandate which hold the 
-//commans and arguments in one string 
+//commands and arguments in one string 
 //and the connecters in another.
 //////////////////////////////////////// 
 void pares(Command*& cmdvec,string input){
@@ -84,51 +83,47 @@ void pares(Command*& cmdvec,string input){
     int j = 0;
     
     for(unsigned int i = 0; i < input.size(); i++)
+    {
+        if(input.at(i) == '&' && input.at(i + 1) == '&')
         {
-            if(input.at(i) == '&' && input.at(i + 1) == '&')
-            {
-                c.push_back("&&");
-                
-            }
-            else if(input.at(i) == '|' && input.at(i + 1) == '|')
-            {
-                c.push_back("||");
-                
-            }
-            else if(input.at(i) == ';')
-            {
-                c.push_back(";");
-                
-            }
+            c.push_back("&&");
+        }
+        else if(input.at(i) == '|' && input.at(i + 1) == '|')
+        {
+            c.push_back("||");
+        }
+        else if(input.at(i) == ';')
+        {
+            c.push_back(";");
+        }
+    }
+    c.push_back("end");    
+    
+    char *str = const_cast<char *>(input.c_str());
+    char* tok = strtok(str,"&|;\n");
+    while(tok != NULL)
+    {
+        Mandate* cmd = new Mandate();    
+            
+        if(tok[0] != ' ')
+        {   
+            cmd->setConnector(c.at(j));
+            cmd->setExecutable(tok);
+            cmdvec->setCommand(cmd);
+            j++;
             
         }
-        c.push_back("end");    
+        else
+        {
+            cmd->setConnector(c.at(j));
+            cmd->setExecutable(tok+1);
+            cmdvec->setCommand(cmd);
+            j++;
+            
+        }   
         
-        char *str = const_cast<char *>(input.c_str());
-        char* tok = strtok(str,"&|;\n");
-        while(tok != NULL)
-        {
-            Mandate* cmd = new Mandate();    
-                
-            if(tok[0] != ' ')
-            {   
-                cmd->setConnector(c.at(j));
-                cmd->setExecutable(tok);
-                cmdvec->setCommand(cmd);
-                j++;
-                
-            }
-            else
-            {
-                cmd->setConnector(c.at(j));
-                cmd->setExecutable(tok+1);
-                cmdvec->setCommand(cmd);
-                j++;
-                
-            }   
-            
-            tok = strtok(NULL, "&|;");
-        }
+        tok = strtok(NULL, "&|;");
+    }
         
     
 }    

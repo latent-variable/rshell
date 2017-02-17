@@ -14,11 +14,10 @@ Mandate::Mandate(string a, string b)
 {
     this->Executeble = a;
     this->Connector = b;
-    
 }
+
 void Mandate::Execute()
 {
-
     int status;
     int count = 1;
     string command;
@@ -30,7 +29,6 @@ void Mandate::Execute()
     {
         if(count == 1)
         {
-            
             command = token;
             count++;
         }
@@ -40,6 +38,10 @@ void Mandate::Execute()
             count++;
         }
         token = strtok(NULL, " ");
+    }
+    
+    if(command == "exit"){
+        exit(0);
     }
     
     pid_t pid; 
@@ -71,11 +73,18 @@ void Mandate::Execute()
                  args[i]  = (char*) argument[i+1].c_str();
                  i++;
                  count--;
+                 if (*args[i] == 'e'&&*args[i+1] =='x'&&*args[i+2] =='i'&&*args[i+3] =='t'){
+                      exit(errno);
+                      //exit( exit_code );
+                 }
+                 
+                 
+                 
             }
             args[i] = NULL;
             if( execvp(args[0], args) == -1){
                 perror("Error!");
-                exit(errno);
+               
             }
             
         }
