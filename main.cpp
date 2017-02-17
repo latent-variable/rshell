@@ -22,8 +22,8 @@ int main(){
     
     string input;
     
-    do
-    {
+    
+    while(input != "quit"){
         
      
         print();
@@ -64,7 +64,7 @@ int main(){
         //quit will end shell
        
     
-    }while(input != "quit");
+    };
    
     return 0;
 }
