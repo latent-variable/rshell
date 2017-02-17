@@ -2,8 +2,8 @@
 
 #Variables
 CC=g++
-CC_FLAGS=-Wall --std=c++0x
-EXEC=rshell.out
+CC_FLAGS=-Wall -Werror -ansi -pedantic --std=c++0x
+EXEC=/bin/rshell.out
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 
@@ -12,6 +12,8 @@ $(EXEC): $(OBJECTS)
 
 %.o: %.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
+
+
 
 clean:
 	rm -f $(EXEC) $(OBJECTS)
