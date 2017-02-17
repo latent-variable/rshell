@@ -20,18 +20,15 @@ void pares(Command*&, string);
 int main(){
 
     
-    string input;
     
     
-    while(input != "quit"){
+    
+    do{
         
-     
+        string input;
         print();
         getline(cin, input);
         Command* cmdvec = new Command();
-        
-        
-        
         /*
         Mandate* cmd = new Mandate(input, "&&");
         Mandate* cmd2 = new Mandate("ls -l", "||");
@@ -43,8 +40,6 @@ int main(){
         S->Execute();
         
        */
-       
-       
        Mandate* man = new Mandate();
       
         if(input != "quit"){
@@ -64,7 +59,7 @@ int main(){
         //quit will end shell
        
     
-    };
+    }while(input != "quit");
    
     return 0;
 }
