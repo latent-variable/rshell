@@ -5,12 +5,10 @@
 #include <string.h>
 #include <stdio.h>
 
-
-
 using namespace std;
-
-
-Mandate::Mandate(){ }
+/////////////////////////////////////////////////////////
+//*******************Mandate****************************
+////////////////////////////////////////////////////////
 Mandate::Mandate(string a, string b)
 {
     this->Executeble = a;
@@ -64,7 +62,8 @@ void Mandate::Execute()
                 exit(errno);
             }
         }else{
-            char *args[count -1];
+            //count -1 would be more ideal then 50
+            char *args[50];
             args[0]  = (char*) command.c_str();
             int i = 1;
             while(count > 2){
@@ -117,7 +116,9 @@ string Mandate::getConnector(){
     
 }
 
-/////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//*************************Commands****************************
+//////////////////////////////////////////////////////////////
 Command::Command(){}
 Command::Command(Mandate* item){
     
@@ -151,8 +152,6 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out ){
             }else{
                 setTree(new Semicolon(item , NULL),n,out);
             }
-             
-            
         }
         
     }
@@ -188,7 +187,7 @@ Mandate* Command::getCommand(int a){
 }
 
 /////////////////////////////////////////////////////////////
-//      AND Methods
+//**********************AND Methods*************************
 ////////////////////////////////////////////////////////////
 
 And::And(Base* child1, Base* child2){
@@ -215,7 +214,7 @@ void And::Execute(){
  
 }
 /////////////////////////////////////////////////////
-//    OR methods 
+//*********************OR methods*******************
 ////////////////////////////////////////////////////
 Or::Or(Base* child1, Base* child2){
     Flag = true;
@@ -236,8 +235,8 @@ void Or::Execute(){
         this->setBFlag( true );
 }
 
-//////////////////////////////////////////////////////
-//       Semicolon Methods
+////////////////////////////////////////////////////////
+//****************Semicolon Methods********************
 ///////////////////////////////////////////////////////
 Semicolon::Semicolon(Base* child1, Base* child2){ 
     Flag = true;

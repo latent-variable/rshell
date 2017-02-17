@@ -10,46 +10,31 @@
 #include <stdio.h>
 #include "Execute.h"
 
-
 using namespace std;
-
-
 
 void print();
 void pares(Command*&, string);
+///////////////////////////////////////////////////
 int main(){
+  
+    string input;
 
-    
-    
-    
-    
     do{
         
-        string input;
+        input = " ";
         print();
         getline(cin, input);
         Command* cmdvec = new Command();
-        /*
-        Mandate* cmd = new Mandate(input, "&&");
-        Mandate* cmd2 = new Mandate("ls -l", "||");
-        Mandate* cmd3 = new Mandate("echo done", ";");
-        Mandate* cmd4 = new Mandate("echo this is the end", ";");
-        And* N = new And(cmd,cmd2);
-        Or* r = new Or(N,cmd3);
-        Semicolon* S = new Semicolon(r, cmd4);
-        S->Execute();
-        
-       */
-       Mandate* man = new Mandate();
-      
+        Mandate* man = new Mandate();
+       
+       
         if(input != "quit"){
             
             pares(cmdvec,input);
             
-                man = cmdvec->getCommand(0);
-
-        
-            if (cmdvec->size() > 1)
+            man = cmdvec->getCommand(0);
+         
+          if (cmdvec->size() > 1)
                 cmdvec->Execute();
                 
             else
@@ -57,8 +42,7 @@ int main(){
         }
         
         //quit will end shell
-       
-    
+  
     }while(input != "quit");
    
     return 0;
@@ -66,10 +50,35 @@ int main(){
 
 
 void print()
-{
+{   
+    //hopefully we can add user data
      cout << "$ ";
 }
+
+/////////////////////////////////////////
+//Paresing function returns by refrence a 
+//vector of type Mandate which hold the 
+//commans and arguments in one string 
+//and the connecters in another.
+//////////////////////////////////////// 
 void pares(Command*& cmdvec,string input){
+    
+    //this takes out all the comments that are in the string
+    //in turns "ls && ls #hhhhhhhhh# || ls" into "ls && ls  || ls"
+    string input2 = "";
+    bool flag = true;
+    for(unsigned int i = 0; i < input.size(); i++){
+        if(input.at(i) != '#' && flag == true){
+            input2 += input.at(i);
+        }
+        else if(input.at(i) == '#' && flag == true){
+            flag = false;
+        }
+        else if(input.at(i) == '#' && flag == false){
+            flag = true;
+        }
+    }
+    input = input2;
     
     vector<string> c;
     int j = 0;
@@ -111,12 +120,10 @@ void pares(Command*& cmdvec,string input){
             }
             else
             {
-                
                 cmd->setConnector(c.at(j));
                 cmd->setExecutable(tok+1);
                 cmdvec->setCommand(cmd);
                 j++;
-                
                 
             }   
             
