@@ -8,24 +8,31 @@ using namespace std;
 
 class Base{
     public:
-        Base(){};
+        Base(){
+            Flag = true;
+        };
         virtual void Execute() = 0;
+    	void setBFlag(bool f){
+    	    Flag = f;
+    	}
+        bool getBFlag(){
+            return Flag;
+        }
+    protected:
+        bool Flag;
         
-        bool Flag = true;
 };
 class Mandate : public Base{
     private:
         string Executeble;
         string Connector;
-        bool Flag = true;
+       
 
     public:
         Mandate();
         Mandate(string,string);
         void Execute();
         void setChild(Mandate* );
-        void setFlag(bool);
-        bool getFlag();
         void setExecutable(string input);
         string getExecutable();
         void setConnector(string input);
@@ -34,16 +41,13 @@ class Mandate : public Base{
 ////////////////////////////////
 class Command : public Base{
     private:
-
         vector<Mandate*> commands;
         
     public:
         Command();
         Command(Mandate*);
-        void setTree(Base*,int,Base*&);
+        void setTree(Base*,unsigned int,Base*&);
         void Execute();
-        void setFlag(bool);
-        bool getFlag();
         void setCommand(Mandate* input);
         int size();
         Mandate* getCommand(int);
@@ -53,39 +57,32 @@ class And: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool Flag = true;
         
     public:
-        And();
         And(Base*, Base*);
         void Execute();
-        void setFlag(bool);
-        bool getFlag();
+
 };
 ///////////////////////////////
 class Or: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool Flag = true;
         
     public:
         Or(Base*, Base*);
         void Execute();
-        void setFlag(bool);
-        bool getFlag();
+        
 };
 ///////////////////////////////
 class Semicolon: public Base{
     private:
         Base* child1;
         Base* child2;
-        bool Flag = true;
+       
         
     public:
         Semicolon(Base*, Base*);
         void Execute();
-        void setFlag(bool);
-        bool getFlag();
-};
+};     
 #endif 

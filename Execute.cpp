@@ -13,7 +13,6 @@ using namespace std;
 Mandate::Mandate(){ }
 Mandate::Mandate(string a, string b)
 {
-    
     this->Executeble = a;
     this->Connector = b;
     
@@ -32,6 +31,7 @@ void Mandate::Execute()
     {
         if(count == 1)
         {
+            
             command = token;
             count++;
         }
@@ -43,7 +43,8 @@ void Mandate::Execute()
         token = strtok(NULL, " ");
     }
     
-    pid_t pid,wpid; 
+    pid_t pid; 
+    //pid_t wpid;
     pid = fork();
     
     if ( pid < 0  ) 
@@ -75,7 +76,6 @@ void Mandate::Execute()
             if( execvp(args[0], args) == -1){
                 perror("Error!");
                 exit(errno);
-                
             }
             
         }
@@ -89,22 +89,15 @@ void Mandate::Execute()
               //if(WIFEXITED(status))
                 //cout<<"child exited with = "<<WEXITSTATUS(status)<<endl;        
              if (WEXITSTATUS(status) > 0)
-                  this->Flag = false;
-             
-             wpid = waitpid(pid, &status, WUNTRACED);
+                  setBFlag(false) ;
+             else
+                setBFlag(true);
+                
+            // wpid = waitpid(pid, &status, WUNTRACED);
         }
         while (!WIFEXITED(status) && !WIFSIGNALED(status));
     
     }
-}
-
-void Mandate::setFlag(bool flag)
-{
-    this->Flag = flag;
-}
-bool Mandate::getFlag()
-{
-    return this->Flag;
 }
 void Mandate::setExecutable(string input)
 {
@@ -130,7 +123,7 @@ Command::Command(Mandate* item){
     
     commands.push_back(item);
 }
-void Command::setTree(Base* item ,int i, Base*& out ){
+void Command::setTree(Base* item ,unsigned int i, Base*& out ){
    
    if ( i <  commands.size()-1  )
    {
@@ -178,16 +171,6 @@ void Command::Execute(){
      
 }
 
-void Command::setFlag(bool flag){
-    
-    this->Flag = flag;
-    
-}
-bool Command::getFlag(){
-    
-    return this->Flag;
-    
-}
 void Command::setCommand(Mandate* input){
             
     commands.push_back(input);
@@ -207,93 +190,67 @@ Mandate* Command::getCommand(int a){
 /////////////////////////////////////////////////////////////
 //      AND Methods
 ////////////////////////////////////////////////////////////
-And::And(){
-    
-}
+
 And::And(Base* child1, Base* child2){
+    Flag = true;
     this->child1 = child1;
     this->child2 = child2;
 }
 void And::Execute(){
     
-    
-   if (this->child1->Flag == true ){
+   
         this->child1->Execute();
         
          
-        if (this->child1->Flag == true ){
+        if ( child1->getBFlag() == true ){
             
             this->child2->Execute();
            
-            if( this->child2->Flag == false)
-                this->Flag = false;
+            if( this->child2->getBFlag() == false)
+                this->setBFlag(false);
 
         }
         else
-            this->Flag = false;
-   }
-    else
-        this->Flag = false;    
-        
-}
-void And::setFlag(bool flag){
-    
-    this->Flag = flag;
-    
-}
-bool And::getFlag(){
-    
-    return this->Flag;
-    
+            this->setBFlag(false);
+ 
 }
 /////////////////////////////////////////////////////
 //    OR methods 
 ////////////////////////////////////////////////////
 Or::Or(Base* child1, Base* child2){
+    Flag = true;
     this->child1 = child1;
     this->child2 = child2;
 }
 void Or::Execute(){
     
     
-    child1->Execute();
-    if ( this->child1->Flag == false ){
+    this->child1->Execute();
+    if ( child1->getBFlag() == false ){
          this->child2->Execute();
          
-         if (this->child2->Flag == false)
-            this->Flag = false;
+         if (child2->getBFlag() == false)
+            this->setBFlag(true );
     }       
     else
-        this->Flag = false;
+        this->setBFlag( true );
 }
-void Or::setFlag(bool flag){
-    Flag = flag;
-    
-}
-bool Or::getFlag(){
-    return Flag;
-    
-}
+
 //////////////////////////////////////////////////////
 //       Semicolon Methods
 ///////////////////////////////////////////////////////
-Semicolon::Semicolon(Base* child1, Base* child2){
+Semicolon::Semicolon(Base* child1, Base* child2){ 
+    Flag = true;
     this->child1 = child1;
     this->child2 = child2;
-    if(this->child2->Flag == false)
-        this->Flag = false;
+   
 }
 void Semicolon::Execute(){
      child1->Execute();
      child2->Execute();
-}
-void Semicolon::setFlag(bool flag){
-    this->Flag=flag;    
-
-   
-}
- bool Semicolon::getFlag(){
      
-     return Flag;
-     
- }
+     if(child2->getBFlag() == false ){
+         this->setBFlag( false );
+     }
+        
+}

@@ -3,7 +3,7 @@
 #Variables
 CC=g++
 CC_FLAGS=-Wall --std=c++0x
-EXEC=test.out
+EXEC=rshell.out
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 
