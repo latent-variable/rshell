@@ -1,19 +1,13 @@
-#Composite makefile
 
-#Variables
 CC=g++
-CC_FLAGS=-Wall -Werror -ansi -pedantic --std=c++0x
-EXEC=/bin/rshell.out
-SOURCES=$(wildcard *.cpp)
-OBJECTS=$(SOURCES:.cpp=.o)
+CC_FLAGS=-Wall -Werror -ansi -pedantic
 
-$(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+--std=c++0x
 
-%.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
-
-
-
+all: 
+	mkdir -p ./bin
+	$(CC) $(CC_FLAGS) ./src/main.cpp ./src/Execute.cpp -o ./bin/rshell
+rshell:
+	$(CC) $(CC_FLAGS) ./src/main.cpp ./src/Execute.cpp -o ./bin/rshell
 clean:
-	rm -f $(EXEC) $(OBJECTS)
+	rm -rf ./bin
