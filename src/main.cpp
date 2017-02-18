@@ -51,7 +51,7 @@ void print()
         perror("error");
     }
     cout << userName;
-    cout << "$ ";
+    cout << " $ ";
 }
 
 /////////////////////////////////////////
