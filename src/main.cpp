@@ -3,7 +3,7 @@
 //ucrnetid1=lgonz041
 //name2=Rafael Gomez
 //ucrnetid2=rgome020
-//repourl=https://github.com/lgonz041/rshell.git
+//https://github.com/lgonz041/rshell.git
 #include <iostream>
 #include <cstdlib>
 #include <string.h>
@@ -114,11 +114,3 @@ void pares(Command*& cmdvec,string input){
     }
 }    
 
-/*
-test cases:
-echo A #echo B echo A #&& echo B echo A && echo B #&& echo C echo A #; echo B echo A #|| echo B
-exit #just exit echo A && exit #A echo A || exit #A, testdoneecho A; exit #A echo A #exit #A, testdone
-echo A && echo B echo A || echo B echo A; echo B ls -j && echo A ls -j || echo A ls -j; echo A ls -j && echo A || echo B echo A || echo B || echo C echo A || echo B && echo C echo A && echo B && echo C  # print A, B, C
-ls ls -al ls -j echo A echo AB CD help help pwd echo echo echa AB cal
-
-*/
