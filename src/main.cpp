@@ -24,17 +24,19 @@ int main(){
         input = " ";
         print();
         getline(cin, input);
-        Command* cmdvec = new Command();
-        Mandate* man = new Mandate();
+	if (input != ""){
+           Command* cmdvec = new Command();
+           Mandate* man = new Mandate();
        
-        if(input != "exit"){
-            pares(cmdvec,input);
-            man = cmdvec->getCommand(0);
-            if (cmdvec->size() > 1)
-                cmdvec->Execute();
-            else
-                man->Execute();
-        }
+           if(input != "exit"){
+              pares(cmdvec,input);
+              man = cmdvec->getCommand(0);
+              if (cmdvec->size() > 1)
+                  cmdvec->Execute();
+              else
+                  man->Execute();
+	  }
+	}
     }while(input != "exit");
    
     return 0;
