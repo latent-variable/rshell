@@ -2,6 +2,6 @@
 cd ..
 
 bin/rshell
-
-ls ;
+sleep 2
+ls && echo a ||exit && ls -l && ls -a || exit; #exit # || ls && exit;
 
