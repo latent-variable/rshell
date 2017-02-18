@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "Execute.h"
 
 using namespace std;
@@ -43,7 +44,14 @@ int main(){
 void print()
 {   
     //hopefully we can add user data
-     cout << "$ ";
+    char userName[64];
+    int n = getlogin_r(userName, sizeof(userName)-1);
+    if(0 != n)
+    {
+        perror("error");
+    }
+    cout << userName;
+    cout << "$ ";
 }
 
 /////////////////////////////////////////
