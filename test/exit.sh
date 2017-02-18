@@ -1,7 +1,8 @@
 #!/bin/sh
 cd ..
 
-bin/rshell
-sleep 2
+
+bin/rshell 
+
 ls && echo a ||exit && ls -l && ls -a || exit; #exit # || ls && exit;
 

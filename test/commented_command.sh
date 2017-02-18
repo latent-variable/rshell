@@ -3,5 +3,5 @@ cd ..
 
 bin/rshell
 
-ls ;
+ls #sdfg sdf s$ # && ls && ls -l || git status ;
 
