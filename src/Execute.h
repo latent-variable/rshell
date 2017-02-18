@@ -5,6 +5,7 @@
 #include <vector>
 
 using namespace std;
+
 ////////////////////////////////////////
 //Base pure vitual class 
 //holds the pure vitual method Execute 
@@ -78,7 +79,6 @@ class And: public Base{
     public:
         And(Base*, Base*);
         void Execute();
-
 };
 ///////////////////////////////
 class Or: public Base{
@@ -89,14 +89,12 @@ class Or: public Base{
     public:
         Or(Base*, Base*);
         void Execute();
-        
 };
 ///////////////////////////////
 class Semicolon: public Base{
     private:
         Base* child1;
         Base* child2;
-       
         
     public:
         Semicolon(Base*, Base*);

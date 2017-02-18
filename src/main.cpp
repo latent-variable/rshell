@@ -26,23 +26,15 @@ int main(){
         Command* cmdvec = new Command();
         Mandate* man = new Mandate();
        
-       
         if(input != "exit"){
-            
             pares(cmdvec,input);
-            
             man = cmdvec->getCommand(0);
-         
-          if (cmdvec->size() > 1)
+            if (cmdvec->size() > 1)
                 cmdvec->Execute();
-                
             else
                 man->Execute();
         }
-        
-        //quit will end shell
-  
-    }while(input != "exitg");
+    }while(input != "exit");
    
     return 0;
 }
@@ -104,14 +96,12 @@ void pares(Command*& cmdvec,string input){
     while(tok != NULL)
     {
         Mandate* cmd = new Mandate();    
-            
         if(tok[0] != ' ')
         {   
             cmd->setConnector(c.at(j));
             cmd->setExecutable(tok);
             cmdvec->setCommand(cmd);
             j++;
-            
         }
         else
         {
@@ -119,11 +109,16 @@ void pares(Command*& cmdvec,string input){
             cmd->setExecutable(tok+1);
             cmdvec->setCommand(cmd);
             j++;
-            
         }   
-        
         tok = strtok(NULL, "&|;");
     }
-        
-    
 }    
+
+/*
+test cases:
+echo A #echo B echo A #&& echo B echo A && echo B #&& echo C echo A #; echo B echo A #|| echo B
+exit #just exit echo A && exit #A echo A || exit #A, testdoneecho A; exit #A echo A #exit #A, testdone
+echo A && echo B echo A || echo B echo A; echo B ls -j && echo A ls -j || echo A ls -j; echo A ls -j && echo A || echo B echo A || echo B || echo C echo A || echo B && echo C echo A && echo B && echo C  # print A, B, C
+ls ls -al ls -j echo A echo AB CD help help pwd echo echo echa AB cal
+
+*/
