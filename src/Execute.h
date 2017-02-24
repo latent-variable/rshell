@@ -37,9 +37,16 @@ class Mandate : public Base{
     private:
         string Executeble;
         string Connector;
+        int Priority;
+        //***************************************************
+        //Addition of Priority to implement () paranthesis
+        //When we look at the input everytime we see "(" the
+        //Priority for that Mandate will +1
+        //When we see ")" the Priority will decrease -1
+        
 
     public:
-        Mandate(){ };
+        Mandate(){Priority = 0; };
         Mandate(string,string);
         void Execute();
         void setChild(Mandate* );
@@ -47,6 +54,8 @@ class Mandate : public Base{
         string getExecutable();
         void setConnector(string input);
         string getConnector();
+        void setPriority(int);
+        int getPriority();
 };
 /////////////////////////////////////////////
 //Commad holds a vector of Mandates(List 
@@ -63,7 +72,7 @@ class Command : public Base{
     public:
         Command();
         Command(Mandate*);
-        void setTree(Base*,unsigned int,Base*&);
+        void setTree(Base*,unsigned int,Base*&,int);
         void Execute();
         void setCommand(Mandate* input);
         Mandate* getCommand(int);
@@ -71,7 +80,7 @@ class Command : public Base{
         
 };
 ////////////////////////////////
-class And: public Base{
+class And : public Base{
     private:
         Base* child1;
         Base* child2;
@@ -91,7 +100,7 @@ class Or: public Base{
         void Execute();
 };
 ///////////////////////////////
-class Semicolon: public Base{
+class Semicolon : public Base{
     private:
         Base* child1;
         Base* child2;
@@ -99,5 +108,33 @@ class Semicolon: public Base{
     public:
         Semicolon(Base*, Base*);
         void Execute();
-};     
+};
+////////////////////////////////////////////////
+//Addition to the leaf pointer 
+// [   ] or test
+//returns 0 or true if file or folder exist 
+/*
+class Test :public Base{
+    private:
+        string Executeble;
+        string Connector;
+        
+    public:
+        Test(string, string);
+        void Execute();
+};*/ //ignore this, its easier and
+//makes more sence to implement Test in the execute of mandate 
+//since its a leaf with a executeble and a connector
+//just need to check for "test " or "[" "]"
+//and add functionality. Mainting the same structure.
+///////////////////////////////
+class Parenthesis : public Base{
+    private:
+        Base* child;
+        string connector;
+    public:
+        Parenthesis(Base*);
+        void Execute();
+};
+
 #endif 

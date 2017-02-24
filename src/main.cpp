@@ -48,10 +48,11 @@ void print()
     //hopefully we can add user data
     char userName[64];
     int n = getlogin_r(userName, sizeof(userName)-1);
-    if(0 != n)
+    /*if(0 != n)    //this way it will not print error for no username
     {
         perror("error");
-    }
+    }*/
+    n=n;
     cout << userName;
     cout << " $ ";
 }
@@ -61,6 +62,7 @@ void print()
 //vector of type Mandate which hold the 
 //commands and arguments in one string 
 //and the connecters in another.
+//////////////////////////////////////// 
 //////////////////////////////////////// 
 void pares(Command*& cmdvec,string input){
     
@@ -82,10 +84,19 @@ void pares(Command*& cmdvec,string input){
     input = input2;
     
     vector<string> c;
+    int priority= 0;
     int j = 0;
     
     for(unsigned int i = 0; i < input.size(); i++)
     {
+         if(input.at(i) == '(' )
+        {
+            priority++;  
+        }
+        if(input.at(i) == ')' )
+        {
+            --priority;
+        }
         if(input.at(i) == '&' && input.at(i + 1) == '&')
         {
             c.push_back("&&");
@@ -102,7 +113,7 @@ void pares(Command*& cmdvec,string input){
     c.push_back("end");    
     
     char *str = const_cast<char *>(input.c_str());
-    char* tok = strtok(str,"&|;\n");
+    char* tok = strtok(str,"&|;()\n");
     while(tok != NULL)
     {
         Mandate* cmd = new Mandate();    
@@ -110,6 +121,7 @@ void pares(Command*& cmdvec,string input){
         {   
             cmd->setConnector(c.at(j));
             cmd->setExecutable(tok);
+            cmd->setPriority(priority);  //passing mandate priority
             cmdvec->setCommand(cmd);
             j++;
         }
@@ -120,7 +132,59 @@ void pares(Command*& cmdvec,string input){
             cmdvec->setCommand(cmd);
             j++;
         }   
-        tok = strtok(NULL, "&|;");
+        tok = strtok(NULL, "&|;()");
     }
-}    
-
+} 
+/* 
+    for(unsigned int i = 0; i < input.size(); i++)
+    {
+        if(input.at(i) == '(' && pflag == false)
+        {
+            pflag = true;   
+        }
+        else if(input.at(i) == ')' && pflag == true)
+        {
+            pflag = false;
+        }
+        if(pflag == false)
+        {
+            if(input.at(i) == '&' && input.at(i + 1) == '&')
+            {
+                outside.push_back("&&");
+            }
+            else if(input.at(i) == '|' && input.at(i + 1) == '|')
+            {
+                outside.push_back("||");
+            }
+            else if(input.at(i) == ';')
+            {
+                outside.push_back(";");
+            }
+        }
+        else if(pflag == true)
+        {
+            if(input.at(i) == '&' && input.at(i + 1) == '&')
+            {
+                c2.push_back("&&");
+            }
+            else if(input.at(i) == '|' && input.at(i + 1) == '|')
+            {
+                c2.push_back("||");
+            }
+            else if(input.at(i) == ';')
+            {
+                c2.push_back(";");
+            }
+        }
+    }
+    outside.push_back("end");
+    c2.push_back("end");
+    
+    for(unsigned int i = 0; i < outside.size(); i++){
+        cout << "out: " << outside[i] << endl;
+    }
+    cout << endl << "c2:";
+    for(unsigned int i = 0; i < c2.size(); i++){
+        cout << "in: " << c2[i] << endl;
+    }
+    */
