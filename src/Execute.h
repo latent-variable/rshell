@@ -72,7 +72,7 @@ class Command : public Base{
     public:
         Command();
         Command(Mandate*);
-        void setTree(Base*,unsigned int,Base*&,int);
+        void setTree(Base*,unsigned int,Base*&);
         void Execute();
         void setCommand(Mandate* input);
         Mandate* getCommand(int);
@@ -109,31 +109,14 @@ class Semicolon : public Base{
         Semicolon(Base*, Base*);
         void Execute();
 };
-////////////////////////////////////////////////
-//Addition to the leaf pointer 
-// [   ] or test
-//returns 0 or true if file or folder exist 
-/*
-class Test :public Base{
-    private:
-        string Executeble;
-        string Connector;
-        
-    public:
-        Test(string, string);
-        void Execute();
-};*/ //ignore this, its easier and
-//makes more sence to implement Test in the execute of mandate 
-//since its a leaf with a executeble and a connector
-//just need to check for "test " or "[" "]"
-//and add functionality. Mainting the same structure.
-///////////////////////////////
+
+//////////////////////////////////////////
 class Parenthesis : public Base{
     private:
         Base* child;
         string connector;
     public:
-        Parenthesis(Base*);
+        Parenthesis(Base*,string);
         void Execute();
 };
 

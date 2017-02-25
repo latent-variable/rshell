@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-using namespace std;
+
 
 /////////////////////////////////////////////////////////
 //*******************Mandate****************************
@@ -145,47 +145,39 @@ Command::Command(Mandate* item)
     commands.push_back(item);
 }
 
-void Command::setTree(Base* item ,unsigned int i, Base*& out, int currentpriority )
+void Command::setTree(Base* item ,unsigned int i, Base*& out )
 {
-   if (i < commands.size()-1)
+   if (i < commands.size()-1 )
    {    //**********************************************************************************************
-        //We first need to go through the vector and find the higest priority this 
-        //should be done in the Command::Execute() method. Adding a int Priority parameter to setTree
+        //We first need to go through the vector and find the higest priority.
+        //Rearrange the vector base on Priority
         //Then we will make the tree based on the priority of the mandates
         //Example highest priority is 3 
         //make all the mandates of priority 3 first then all the ones of two 
         // all the ones of 1 and finally all the ones of zero
-        //Whenever, the priority changes then we create a new Parenthesis object
-        
-        int highpriority = currentpriority;
-        
+    
         string connect = commands[i]->getConnector();
-        int mandatePriority = commands[i]->getPriority();  //check for Priority change
         
-        
-        if(highpriority != mandatePriority )
-        {
-            unsigned int n = i + 1;
-            setTree(new Parenthesis(item),n,out,mandatePriority);
-        }
+       
         if(connect == "&&")
         {       
             unsigned int n =i+1;
-            setTree(new And(item , commands[n]),n,out,mandatePriority);
+            setTree(new And(item , commands[n]),n,out);
         }
         else if(connect == "||")
         {
             unsigned int n =i+1;
-            setTree(new Or(item, commands[n]),n,out,mandatePriority);
+            setTree(new Or(item, commands[n]),n,out);
         }
         else if(connect == ";")
         {
             unsigned int n = i+1;
             if(connect != "end")
-                setTree(new Semicolon(item , commands[n]),n,out,mandatePriority);
+                setTree(new Semicolon(item , commands[n]),n,out);
             else
-                setTree(new Semicolon(item , NULL),n,out,mandatePriority);
+                setTree(new Semicolon(item , NULL),n,out);
         }
+       
     }
     else
     {
@@ -195,15 +187,9 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out, int currentpriorit
 
 void Command::Execute()
 {   
-    int higestpriority = 0;
     Base * out;
     unsigned int i = 0;
-    for(unsigned int i = 0; i < commands.size()-1; i++){
-        if (commands[i]->getPriority() > higestpriority)
-            higestpriority = commands[i]->getPriority();
-    }
-
-    setTree(commands[0] , i, out, higestpriority);
+    setTree(commands[0] , i, out);
     out->Execute();
 }
 
@@ -293,10 +279,11 @@ void Semicolon::Execute()
 //****************Parenthesis Methods******************
 ///////////////////////////////////////////////////////
 
-Parenthesis::Parenthesis(Base* child)
+Parenthesis::Parenthesis(Base* child, string c)
 {
     Flag = true;
     this->child = child;
+    this->connector = c;
 }
 
 void Parenthesis::Execute()

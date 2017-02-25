@@ -9,13 +9,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <algorithm> 
+#include <cstring>
 #include "Execute.h"
+#include <list>
 
 using namespace std;
 
 void print();
 void pares(Command*&, string);
-
 int main(){
   
     string input;
@@ -31,6 +33,7 @@ int main(){
            if(input != "exit"){
               pares(cmdvec,input);
               man = cmdvec->getCommand(0);
+              
               if (cmdvec->size() > 1)
                   cmdvec->Execute();
               else
@@ -82,109 +85,77 @@ void pares(Command*& cmdvec,string input){
         }
     }
     input = input2;
-    
+    //////////////////////////////////////////////////////////////
+    //The string now removes the all the a "(" when it runs into it 
+    //but also increase Priority. Also for ")" remove from string 
+    //and increase priority
     vector<string> c;
-    int priority= 0;
-    int j = 0;
-    
-    for(unsigned int i = 0; i < input.size(); i++)
+    int priority = 0;
+    list<int> allpriority;
+    list<int>::iterator it = allpriority.begin();
+    unsigned int size = input.size();
+    for(unsigned int i = 0; i < size; i++)
     {
          if(input.at(i) == '(' )
         {
-            priority++;  
+            priority = priority +1;
+            input.replace (i,1," "); 
         }
         if(input.at(i) == ')' )
         {
-            --priority;
+            priority = priority - 1;
+            input.replace (i,1," ");
         }
         if(input.at(i) == '&' && input.at(i + 1) == '&')
         {
             c.push_back("&&");
+            allpriority.push_back( priority );
         }
         else if(input.at(i) == '|' && input.at(i + 1) == '|')
         {
             c.push_back("||");
+            allpriority.push_back( priority );
         }
         else if(input.at(i) == ';')
         {
             c.push_back(";");
+            allpriority.push_back( priority );
         }
     }
     c.push_back("end");    
+    allpriority.push_back( priority);
+    int j = 0;
+    cout <<"input after remmoving the () "<<input<<endl;
     
     char *str = const_cast<char *>(input.c_str());
-    char* tok = strtok(str,"&|;()\n");
+    char* tok = strtok(str,"&|;\n");
     while(tok != NULL)
     {
-        Mandate* cmd = new Mandate();    
+        
+        Mandate* cmd = new Mandate(); 
+        
         if(tok[0] != ' ')
         {   
-            cmd->setConnector(c.at(j));
-            cmd->setExecutable(tok);
-            cmd->setPriority(priority);  //passing mandate priority
-            cmdvec->setCommand(cmd);
+            
+            cmd->setConnector( c.at(j) );
+            cmd->setExecutable( tok );
+            cmd->setPriority(*it );  //passing mandate priority
+            advance(it,1);
+            cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            cmdvec->setCommand( cmd );
             j++;
         }
         else
-        {
+        {   
+          
             cmd->setConnector(c.at(j));
             cmd->setExecutable(tok+1);
+            cmd->setPriority( *it );  //passing mandate priority
+            advance(it,1);
+            cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand(cmd);
             j++;
         }   
-        tok = strtok(NULL, "&|;()");
+        tok = strtok(NULL, "&|;");
     }
 } 
-/* 
-    for(unsigned int i = 0; i < input.size(); i++)
-    {
-        if(input.at(i) == '(' && pflag == false)
-        {
-            pflag = true;   
-        }
-        else if(input.at(i) == ')' && pflag == true)
-        {
-            pflag = false;
-        }
-        if(pflag == false)
-        {
-            if(input.at(i) == '&' && input.at(i + 1) == '&')
-            {
-                outside.push_back("&&");
-            }
-            else if(input.at(i) == '|' && input.at(i + 1) == '|')
-            {
-                outside.push_back("||");
-            }
-            else if(input.at(i) == ';')
-            {
-                outside.push_back(";");
-            }
-        }
-        else if(pflag == true)
-        {
-            if(input.at(i) == '&' && input.at(i + 1) == '&')
-            {
-                c2.push_back("&&");
-            }
-            else if(input.at(i) == '|' && input.at(i + 1) == '|')
-            {
-                c2.push_back("||");
-            }
-            else if(input.at(i) == ';')
-            {
-                c2.push_back(";");
-            }
-        }
-    }
-    outside.push_back("end");
-    c2.push_back("end");
-    
-    for(unsigned int i = 0; i < outside.size(); i++){
-        cout << "out: " << outside[i] << endl;
-    }
-    cout << endl << "c2:";
-    for(unsigned int i = 0; i < c2.size(); i++){
-        cout << "in: " << c2[i] << endl;
-    }
-    */
