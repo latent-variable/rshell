@@ -89,6 +89,7 @@ void pares(Command*& cmdvec,string input){
     //The string now removes the all the a "(" when it runs into it 
     //but also increase Priority. Also for ")" remove from string 
     //and increase priority
+    
     vector<string> c;
     int priority = 0;
     list<int> allpriority;
