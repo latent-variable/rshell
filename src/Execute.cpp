@@ -235,97 +235,96 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out )
         // all the ones of 1 and finally all the ones of zero
     
         string connect = connections[i];
-        if(connect != "end"){
         
-            if(connect == "&&")
-            {       
-                unsigned int n =i+1;
-                setTree(new And(item , commands[n]),n,out);
-            }
-            else if(connect == "||")
-            {
-                unsigned int n =i+1;
-                setTree(new Or(item, commands[n]),n,out);
-            }
-            else if(connect == ";"){
-                 unsigned int n =i+1;
-                setTree(new Semicolon(item , commands[n]),n,out);
-            }
+    
+        if(connect == "&&")
+        {       
+            unsigned int n =i+1;
+            setTree(new And(item , commands[n]),n,out);
         }
-        else
+        else if(connect == "||")
+        {
+            unsigned int n =i+1;
+            setTree(new Or(item, commands[n]),n,out);
+        }
+        else if(connect == ";" || connect == "end"){
+             unsigned int n =i+1;
+            setTree(new Semicolon(item , commands[n]),n,out);
+        }
+        else if ( connect == "back" )
         {
             
-            i++;
-            connect = connections[i];
-             if(connect == "&&")
-            {   
-                connect = connections[i+1];    
-                if(connect == "&&")
-                {       
-                    And* c1 = new And(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
-                else if(connect == "||")
-                {
-                    Or* c1 = new Or(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
-                else if(connect == ";"){
-                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
             
-            }
-            else if(connect == "||")
-            {
-                connect = connections[i+1];    
-                if(connect == "&&")
-                {       
-                    And* c1 = new And(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
+            if (i +2 <= connections.size()){
+                i++;
+                connect = connections[i];
+                 if(connect == "&&")
+                {   
+                    connect = connections[i+1];    
+                    if(connect == "&&")
+                    {       
+                        And* c1 = new And(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new And(item, c1),n,out);
+                    }
+                    else if(connect == "||")
+                    {
+                        Or* c1 = new Or(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new And(item, c1),n,out);
+                    }
+                    else if(connect == ";"){
+                        Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new And(item, c1),n,out);
+                    }
+                
                 }
                 else if(connect == "||")
                 {
-                    Or* c1 = new Or(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
+                    connect = connections[i+1];    
+                    if(connect == "&&")
+                    {       
+                        And* c1 = new And(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Or(item, c1),n,out);
+                    }
+                    else if(connect == "||")
+                    {
+                        Or* c1 = new Or(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Or(item, c1),n,out);
+                    }
+                    else if(connect == ";"){
+                        Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Or(item, c1),n,out);
+                    }
+                    
                 }
                 else if(connect == ";"){
-                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
+                    connect = connections[i+1];    
+                    if(connect == "&&")
+                    {       
+                        And* c1 = new And(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Semicolon(item, c1),n,out);
+                    }
+                    else if(connect == "||")
+                    {
+                        Or* c1 = new Or(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Semicolon(item, c1),n,out);
+                    }
+                    else if(connect == ";"){
+                        Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                        unsigned int n =i+1;
+                        setTree(new Semicolon(item, c1),n,out);
+                    }
                 }
-                
             }
-            else if(connect == ";"){
-                connect = connections[i+1];    
-                if(connect == "&&")
-                {       
-                    And* c1 = new And(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
-                else if(connect == "||")
-                {
-                    Or* c1 = new Or(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
-                else if(connect == ";"){
-                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
-                    unsigned int n =i+1;
-                    setTree(new Or(item , c1),n,out);
-                }
                 
-            }
-            
         }
-        
-        
     }
     else
     {
@@ -361,7 +360,7 @@ void Command::ArrangePriority()
     
     int highPriority = 0;
     unsigned arrsize = commands.size();
-   // cout<< "size: " << arrsize <<endl;
+    cout<< "size: " << arrsize <<endl;
     for (unsigned i = 0; i < arrsize   ; i++ ){
         temp = commands.at(i);
         
@@ -371,7 +370,7 @@ void Command::ArrangePriority()
             
         }
     }
-   // cout<< "High Priority: " << highPriority <<endl;
+    cout<< "High Priority: " << highPriority <<endl;
     
    
    vector<Mandate*> tempcmds;
@@ -385,9 +384,17 @@ void Command::ArrangePriority()
             if (temp -> getPriority() == highPriority)
             {
                 if(j < commands.size()-1){
-                   connections.push_back(temp->getConnector());
+                    if(connections.size() == 0)
+                        connections.push_back(temp->getConnector());
+                    else if (temp->getConnector()== "back" ){
+                        if(connections.back() != "back" )
+                            connections.push_back(temp->getConnector());
+                    }else{
+                        connections.push_back(temp->getConnector());
+                    }
+                            
                 }
-                else if(temp->getConnector() != "end") {
+                else if(temp->getConnector() != "back") {
                     
                     connections.push_back(temp->getConnector());
                 }
@@ -399,13 +406,16 @@ void Command::ArrangePriority()
                 j++;
             }
         }else{
-           // connections.push_back("end");
+           
             highPriority--;
             j = 0;
         }
    }
    if(track == true)
    {
+        for (unsigned i = 0; i< connections.size(); i++){
+            cout<<tempcmds[i]->getExecutable()<<" "<< connections[i]<<endl;
+        }
         commands.swap(tempcmds);
    }
     

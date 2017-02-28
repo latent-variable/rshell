@@ -110,7 +110,7 @@ void pares(Command*& cmdvec,string input){
         }
         if(input.at(i) == ')' )
         {
-            c.push_back("end");  
+            c.push_back("back");  
             priority2--;
             input.replace (i,1," ");
         }
@@ -141,7 +141,7 @@ void pares(Command*& cmdvec,string input){
             priority = priority2;
         }
     }
-       
+    c.push_back("end");    
     allpriority.push_back( priority);
     int j = 0;
     
@@ -158,7 +158,7 @@ void pares(Command*& cmdvec,string input){
             cmd->setConnector( c.at(j) );
             cmd->setExecutable( tok );
             cmd->setPriority(*it );  //passing mandate priority
-            //cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand( cmd );
             
             j++;
@@ -170,7 +170,7 @@ void pares(Command*& cmdvec,string input){
             cmd->setExecutable(tok+1);
             cmd->setPriority( *it );  //passing mandate priority
             
-            //cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand(cmd);
             j++;
         }   
