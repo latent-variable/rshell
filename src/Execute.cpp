@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -16,15 +17,15 @@ Mandate::Mandate(string a, string b)
 {
     this->Executeble = a;
     this->Connector = b;
+    this->Priority = 0;
 }
 
 void Mandate::Execute()
 {
     //Check for test and add functionality 
-    
-    
     int status;
     int count = 1;
+    string testflag = "empty";
     string command;
     string argument[50];
     
@@ -49,60 +50,137 @@ void Mandate::Execute()
         exit(0);
     }
     
-    pid_t pid; 
-    //pid_t wpid;
-    pid = fork();
-    
-    if ( pid < 0  ) 
-    {   
-        cout <<"Error running fork."<<endl;
-       
-    }
-    if (pid == 0)//child
-    {   
-        
-        if(count==2)
+    //checks if the command is test and if so then checks if the given path exist
+    //if the command is not test then it executs the execvp
+    if(command == "test" || command == "t")
+    {
+        struct stat s;
+        char *args;
+        if(argument[2] == "-e" || argument[2] == "-f" || argument[2] == "-d")
         {
-            char *args[2];
-            args[0]  = (char*) command.c_str();
-            args[1] = NULL;
-            if(execvp(args[0], args) == -1)
-            {
-                perror("Error!");
-                exit(errno);
-            }
+            args = (char*)argument[3].c_str();
+            testflag = argument[2];
         }
         else
         {
-            //count -1 would be more ideal then 50
-            char *args[50];
-            args[0]  = (char*) command.c_str();
-            int i = 1;
-            while(count > 2){
-                args[i]  = (char*) argument[i+1].c_str();
-                i++;
-                count--;
-                
+            args = (char*)argument[2].c_str();
+        }
+        
+        if(testflag == "-e" || testflag == "empty")
+        {
+            if(stat(args, &s) == 0)
+            {
+                Flag = true;
+                cout << "(TRUE)" << endl;
             }
-            args[i] = NULL;
-            if( execvp(args[0], args) == -1){
+            else
+            {
+                Flag = false;
                 perror("Error!");
-                exit(errno);
+            }
+        }
+        else if(testflag == "-f")
+        {
+            if(stat(args, &s) == 0)
+            {
+                if(s.st_mode & S_IFREG)
+                {
+                    Flag = true;
+                    cout << "(TRUE)" << endl;
+                }
+                else
+                {
+                    Flag = false;
+                    cout << "(FALSE)" << endl;
+                }
+            }
+            else
+            {
+                Flag = false;
+                perror("Error!");
+            }
+        }
+        else if(testflag == "-d")
+        {
+            if(stat(args, &s) == 0)
+            {
+                if(s.st_mode & S_IFDIR)
+                {
+                    Flag = true;
+                    cout << "(TRUE)" << endl;
+                }
+                else
+                {
+                    Flag = false;
+                    cout << "(FALSE)" << endl;
+                }
+            }
+            else
+            {
+                Flag = false;
+                perror("Error!");
             }
         }
     }
-    else//parent
-    {   
-        do{
-            wait(&status);
-            //if(WIFEXITED(status))
-            //cout<<"child exited with = "<<WEXITSTATUS(status)<<endl;        
-            if (WEXITSTATUS(status) > 0)
-                setBFlag(false) ;
+    else
+    {
+        pid_t pid; 
+        //pid_t wpid;
+        pid = fork();
+        
+        if ( pid < 0  ) 
+        {   
+            cout <<"Error running fork."<<endl;
+           
+        }
+        if (pid == 0)//child
+        {   
+            
+            if(count==2)
+            {
+                char *args[2];
+                args[0]  = (char*) command.c_str();
+                args[1] = NULL;
+                if(execvp(args[0], args) == -1)
+                {
+                    perror("Error!");
+                    exit(errno);
+                }
+            }
             else
-                setBFlag(true);
-            // wpid = waitpid(pid, &status, WUNTRACED);
-        }while (!WIFEXITED(status) && !WIFSIGNALED(status));
+            {
+                //count -1 would be more ideal then 50
+                char *args[50];
+                args[0]  = (char*) command.c_str();
+                int i = 1;
+                while(count > 2)
+                {
+                    args[i]  = (char*) argument[i+1].c_str();
+                    i++;
+                    count--;
+                    
+                }
+                args[i] = NULL;
+                if( execvp(args[0], args) == -1)
+                {
+                    perror("Error!");
+                    exit(errno);
+                }
+            }
+        }
+        else//parent
+        {   
+            do{
+                wait(&status);
+                //if(WIFEXITED(status))
+                //cout<<"child exited with = "<<WEXITSTATUS(status)<<endl;        
+                if (WEXITSTATUS(status) > 0)
+                    setBFlag(false) ;
+                else
+                    setBFlag(true);
+                // wpid = waitpid(pid, &status, WUNTRACED);
+            }while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        }
     }
 }
 
@@ -147,8 +225,8 @@ Command::Command(Mandate* item)
 
 void Command::setTree(Base* item ,unsigned int i, Base*& out )
 {
-   if (i < commands.size()-1 )
-   {    //**********************************************************************************************
+    if (i < commands.size()-1 )
+    {    //**********************************************************************************************
         //We first need to go through the vector and find the higest priority.
         //Rearrange the vector base on Priority
         //Then we will make the tree based on the priority of the mandates
@@ -156,28 +234,98 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out )
         //make all the mandates of priority 3 first then all the ones of two 
         // all the ones of 1 and finally all the ones of zero
     
-        string connect = commands[i]->getConnector();
+        string connect = connections[i];
+        if(connect != "end"){
         
-       
-        if(connect == "&&")
-        {       
-            unsigned int n =i+1;
-            setTree(new And(item , commands[n]),n,out);
-        }
-        else if(connect == "||")
-        {
-            unsigned int n =i+1;
-            setTree(new Or(item, commands[n]),n,out);
-        }
-        else if(connect == ";")
-        {
-            unsigned int n = i+1;
-            if(connect != "end")
+            if(connect == "&&")
+            {       
+                unsigned int n =i+1;
+                setTree(new And(item , commands[n]),n,out);
+            }
+            else if(connect == "||")
+            {
+                unsigned int n =i+1;
+                setTree(new Or(item, commands[n]),n,out);
+            }
+            else if(connect == ";"){
+                 unsigned int n =i+1;
                 setTree(new Semicolon(item , commands[n]),n,out);
-            else
-                setTree(new Semicolon(item , NULL),n,out);
+            }
         }
-       
+        else
+        {
+            
+            i++;
+            connect = connections[i];
+             if(connect == "&&")
+            {   
+                connect = connections[i+1];    
+                if(connect == "&&")
+                {       
+                    And* c1 = new And(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == "||")
+                {
+                    Or* c1 = new Or(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == ";"){
+                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+            
+            }
+            else if(connect == "||")
+            {
+                connect = connections[i+1];    
+                if(connect == "&&")
+                {       
+                    And* c1 = new And(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == "||")
+                {
+                    Or* c1 = new Or(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == ";"){
+                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                
+            }
+            else if(connect == ";"){
+                connect = connections[i+1];    
+                if(connect == "&&")
+                {       
+                    And* c1 = new And(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == "||")
+                {
+                    Or* c1 = new Or(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                else if(connect == ";"){
+                    Semicolon* c1 = new Semicolon(commands[i],commands[i+1]);
+                    unsigned int n =i+1;
+                    setTree(new Or(item , c1),n,out);
+                }
+                
+            }
+            
+        }
+        
+        
     }
     else
     {
@@ -202,10 +350,65 @@ int Command::size()
 {
     return commands.size();
 }
-
 Mandate* Command::getCommand(int a)
 {
     return (commands.at(a));
+}
+
+void Command::ArrangePriority()
+{
+    Mandate* temp = new Mandate();
+    
+    int highPriority = 0;
+    unsigned arrsize = commands.size();
+   // cout<< "size: " << arrsize <<endl;
+    for (unsigned i = 0; i < arrsize   ; i++ ){
+        temp = commands.at(i);
+        
+        if (highPriority <temp->getPriority())
+        {
+            highPriority = temp->getPriority();
+            
+        }
+    }
+   // cout<< "High Priority: " << highPriority <<endl;
+    
+   
+   vector<Mandate*> tempcmds;
+   
+   unsigned j = 0;
+   bool track = false;
+   while (highPriority >= 0 ){
+        track = true;
+        if (j < arrsize){
+            temp =commands.at(j);
+            if (temp -> getPriority() == highPriority)
+            {
+                if(j < commands.size()-1){
+                   connections.push_back(temp->getConnector());
+                }
+                else if(temp->getConnector() != "end") {
+                    
+                    connections.push_back(temp->getConnector());
+                }
+                
+                tempcmds.push_back(temp);
+                j++;
+            }
+            else{
+                j++;
+            }
+        }else{
+           // connections.push_back("end");
+            highPriority--;
+            j = 0;
+        }
+   }
+   if(track == true)
+   {
+        commands.swap(tempcmds);
+   }
+    
 }
 
 /////////////////////////////////////////////////////////////

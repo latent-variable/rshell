@@ -35,7 +35,10 @@ int main(){
               man = cmdvec->getCommand(0);
               
               if (cmdvec->size() > 1)
+              {
+                  cmdvec->ArrangePriority();
                   cmdvec->Execute();
+              }   
               else
                   man->Execute();
 	  }
@@ -92,41 +95,55 @@ void pares(Command*& cmdvec,string input){
     
     vector<string> c;
     int priority = 0;
-    list<int> allpriority;
+    int priority2 = 0;
+    
+    list<int> allpriority ;
     list<int>::iterator it = allpriority.begin();
     unsigned int size = input.size();
     for(unsigned int i = 0; i < size; i++)
     {
          if(input.at(i) == '(' )
         {
-            priority = priority +1;
-            input.replace (i,1," "); 
+            priority++;
+            priority2++;
+            input.replace(i,1," ");
         }
         if(input.at(i) == ')' )
         {
-            priority = priority - 1;
+            c.push_back("end");  
+            priority2--;
             input.replace (i,1," ");
+        }
+        if(input.at(i) == '[')
+        {
+            input.replace(i,1,"t");
+        }
+        if(input.at(i) == ']')
+        {
+            input.replace(i,1," ");
         }
         if(input.at(i) == '&' && input.at(i + 1) == '&')
         {
             c.push_back("&&");
             allpriority.push_back( priority );
+            priority = priority2;
         }
         else if(input.at(i) == '|' && input.at(i + 1) == '|')
         {
             c.push_back("||");
             allpriority.push_back( priority );
+            priority = priority2;
         }
         else if(input.at(i) == ';')
         {
             c.push_back(";");
             allpriority.push_back( priority );
+            priority = priority2;
         }
     }
-    c.push_back("end");    
+       
     allpriority.push_back( priority);
     int j = 0;
-    cout <<"input after remmoving the () "<<input<<endl;
     
     char *str = const_cast<char *>(input.c_str());
     char* tok = strtok(str,"&|;\n");
@@ -137,26 +154,27 @@ void pares(Command*& cmdvec,string input){
         
         if(tok[0] != ' ')
         {   
-            
+            advance(it,1);
             cmd->setConnector( c.at(j) );
             cmd->setExecutable( tok );
             cmd->setPriority(*it );  //passing mandate priority
-            advance(it,1);
-            cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            //cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand( cmd );
+            
             j++;
         }
         else
         {   
-          
+            advance(it,1);
             cmd->setConnector(c.at(j));
             cmd->setExecutable(tok+1);
             cmd->setPriority( *it );  //passing mandate priority
-            advance(it,1);
-            cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            
+            //cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand(cmd);
             j++;
         }   
         tok = strtok(NULL, "&|;");
     }
+
 } 

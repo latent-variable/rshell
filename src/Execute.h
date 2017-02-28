@@ -68,6 +68,7 @@ class Mandate : public Base{
 class Command : public Base{
     private:
         vector<Mandate*> commands;
+        vector<string> connections;
         
     public:
         Command();
@@ -75,6 +76,7 @@ class Command : public Base{
         void setTree(Base*,unsigned int,Base*&);
         void Execute();
         void setCommand(Mandate* input);
+        void ArrangePriority();
         Mandate* getCommand(int);
         int size();
         
