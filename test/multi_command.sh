@@ -1,9 +1,9 @@
 #!/bin/sh
-cd ..
 
-bin/rshell
+ls && ls -l && sleep 1|| echo hello && sleep 1 || echo world && git status;
 
-ls && ls -l|| echo hello || echo world && git stauts;
 
-echo hello; echo a echo b &&echo c || echo d
 
+echo hello && sleep 1 && echo a && sleep 1; echo b &&echo c || echo d
+
+echo a && sleep 1 &&  echo b && sleep 1; echo c && echo d || echo e # should not do this# && echo e
