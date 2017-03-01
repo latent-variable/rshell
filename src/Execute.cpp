@@ -235,7 +235,6 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out )
         // all the ones of 1 and finally all the ones of zero
     
         string connect = connections[i];
-        
     
         if(connect == "&&")
         {       
@@ -253,12 +252,30 @@ void Command::setTree(Base* item ,unsigned int i, Base*& out )
         }
         else if ( connect == "back" )
         {
-            
-            
-            if (i +2 <= connections.size()){
+            if( i + 2 == connections.size() ){
                 i++;
                 connect = connections[i];
-                 if(connect == "&&")
+                if(connect == "&&")
+                {       
+                    unsigned int n =i+1;
+                    setTree(new And(item , commands[i]),n,out);
+                }
+                else if(connect == "||")
+                {
+                    unsigned int n =i+1;
+                    setTree(new Or(item, commands[i]),n,out);
+                }
+                else if(connect == ";" || connect == "end"){
+                     unsigned int n =i+1;
+                    setTree(new Semicolon(item , commands[i]),n,out);
+                }
+                
+            }
+            
+            if (i + 2 < connections.size() ){
+                i++;
+                connect = connections[i];
+                if(connect == "&&")
                 {   
                     connect = connections[i+1];    
                     if(connect == "&&")
@@ -336,7 +353,7 @@ void Command::Execute()
 {   
     Base * out;
     unsigned int i = 0;
-    setTree(commands[0] , i, out);
+    setTree(commands[0], i, out);
     out->Execute();
 }
 
@@ -360,17 +377,17 @@ void Command::ArrangePriority()
     
     int highPriority = 0;
     unsigned arrsize = commands.size();
-    cout<< "size: " << arrsize <<endl;
+    //cout<< "size: " << arrsize <<endl;
     for (unsigned i = 0; i < arrsize   ; i++ ){
         temp = commands.at(i);
         
-        if (highPriority <temp->getPriority())
+        if (highPriority < temp->getPriority())
         {
             highPriority = temp->getPriority();
             
         }
     }
-    cout<< "High Priority: " << highPriority <<endl;
+    //cout<< "High Priority: " << highPriority <<endl;
     
    
    vector<Mandate*> tempcmds;
@@ -413,9 +430,10 @@ void Command::ArrangePriority()
    }
    if(track == true)
    {
+       /*
         for (unsigned i = 0; i< connections.size(); i++){
             cout<<tempcmds[i]->getExecutable()<<" "<< connections[i]<<endl;
-        }
+        }*/
         commands.swap(tempcmds);
    }
     

@@ -158,7 +158,7 @@ void pares(Command*& cmdvec,string input){
             cmd->setConnector( c.at(j) );
             cmd->setExecutable( tok );
             cmd->setPriority(*it );  //passing mandate priority
-            cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            //cout<<tok<< " priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand( cmd );
             
             j++;
@@ -170,7 +170,7 @@ void pares(Command*& cmdvec,string input){
             cmd->setExecutable(tok+1);
             cmd->setPriority( *it );  //passing mandate priority
             
-            cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
+            //cout<<tok<<" priority: "<< *it <<" connector "<<c.at(j) <<endl;
             cmdvec->setCommand(cmd);
             j++;
         }   
