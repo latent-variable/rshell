@@ -11,3 +11,4 @@ ls && exit
 test -f test && exit 
 test exit 
 test -d exit 
+(echo A && echo B && (echo d && exit )) # only echo d and exit
