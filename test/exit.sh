@@ -7,3 +7,7 @@ ls -a  && c && exit && echo done #not exit
 ls && echo || exit
 ls || exit
 ls && exit
+[ -e test ] && exit 
+test -f test && exit 
+test exit 
+test -d exit 
