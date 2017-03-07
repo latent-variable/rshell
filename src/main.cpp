@@ -15,7 +15,7 @@
 #include <list>
 
 using namespace std;
-
+//now add  input redirection <, outputredirection > and >>, and piping |.
 void print();
 void pares(Command*&, string);
 int main(){
