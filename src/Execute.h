@@ -6,6 +6,9 @@
 
 using namespace std;
 
+//global variable
+extern bool pipeFlag;
+
 ////////////////////////////////////////
 //Base pure vitual class 
 //holds the pure vitual method Execute 

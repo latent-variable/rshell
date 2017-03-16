@@ -14,15 +14,21 @@
 #include "Execute.h"
 #include <list>
 
+
+//global variable
+bool pipeFlag;
+
 using namespace std;
 //now add  input redirection <, outputredirection > and >>, and piping |.
 void print();
 void pares(Command*&, string);
+
 int main(){
   
     string input;
 
     do{
+        pipeFlag = false;
         input = " ";
         print();
         getline(cin, input);
@@ -102,7 +108,13 @@ void pares(Command*& cmdvec,string input){
     unsigned int size = input.size();
     for(unsigned int i = 0; i < size; i++)
     {
-         if(input.at(i) == '(' )
+        if(input.at(i) == '|' && input.at(i+1) != '|')
+        {
+            input.replace(i,1,"*");
+            allpriority.push_back( priority );
+            priority = priority2;
+        }
+        if(input.at(i) == '(' )
         {
             priority++;
             priority2++;
@@ -149,7 +161,6 @@ void pares(Command*& cmdvec,string input){
     char* tok = strtok(str,"&|;\n");
     while(tok != NULL)
     {
-        
         Mandate* cmd = new Mandate(); 
         
         if(tok[0] != ' ')

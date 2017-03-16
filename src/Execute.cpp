@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
+#include <fcntl.h>
 
 
 
@@ -25,11 +27,36 @@ void Mandate::Execute()
     //Check for test and add functionality 
     int status;
     int count = 1;
+    int count2 = 0;
+    bool childflag ;
+    string exec1 = this->Executeble;
+    string exec2 = this->Executeble;
     string testflag = "empty";
     string command;
-    string argument[50];
+    string argument[100];
+    char* argument2[20];
+    /////////////////////////////////////////////////////
+    //add dup() and Pipe functionallity 
+    ////////////////////////////////////////////////////
+    int fd[2];   //file descripter {0 stdin, 1 stdout, 2 stderr}
     
-    char *str = const_cast<char *>(this->Executeble.c_str());
+    char* str2 = const_cast<char *>(exec1.c_str());
+    char* token2 = strtok(str2,"*");
+    while(token2 != NULL)
+    {
+          
+            argument2[count2] = token2;
+            //cout<< argument2[count2]<<endl;
+            count2++;
+            childflag = true;
+       
+        
+        token2 = strtok(NULL, "*");
+    }
+    
+   // cout << "count2: "<< count2<<endl;
+    
+    char *str = const_cast<char *>(exec2.c_str());
     char* token = strtok(str," ");
     while(token != NULL)
     {
@@ -40,8 +67,11 @@ void Mandate::Execute()
         }
         else
         {
+            
             argument[count] = token;
+            //cout<< argument[count] <<endl;
             count++;
+       
         }
         token = strtok(NULL, " ");
     }
@@ -124,8 +154,9 @@ void Mandate::Execute()
     }
     else
     {
-        pid_t pid; 
-        //pid_t wpid;
+        
+        pid_t pid;
+        pipe(fd);
         pid = fork();
         
         if ( pid < 0  ) 
@@ -149,6 +180,90 @@ void Mandate::Execute()
             }
             else
             {
+                //redirect output to file instead of stdout
+                for(int i= 0; i < count; i++){
+                    
+                  
+                    //check all arguments for > and >> as well as for < 
+                    if(argument[i] == ">" )
+                    {   
+                        int savestdout;
+                        int fds;
+                        
+                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                        {
+                            perror("Error!");
+                        }
+                        
+                        close(1);
+                        
+                        if((fds = open(argument[i+1].c_str(),O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR) < 0))// opens file and the file descriptor is given to fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        count -= 2;
+                    }
+                    else if(argument[i] == ">>"  )
+                    {   
+                        int savestdout;
+                        int fds;
+                        
+                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                        {
+                            perror("Error!");
+                        }
+                        
+                        close(1);
+                        
+                        if((fds = open(argument[i+1].c_str(),O_WRONLY | O_APPEND) < 0))// opens file and the file descriptor is given to fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        count -= 2;
+                    }
+                    else if( argument[i] == "<" )
+                    {
+                        int savestdin;
+                        int fds;
+                        
+                        if((savestdin = dup(0) < 0))// creates duplicate of stdin and stores it in savestdout
+                        {
+                            perror("Error!");
+                        }
+                        
+                        close(0);
+                        
+                        if((fds = open(argument[i+1].c_str(),O_RDONLY ) < 0))// opens file and the file descriptor is given to fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        if(dup2(fds,savestdin) < 0) // replaces stdin with new file fds
+                        {
+                            perror("Error!");
+                        }
+                        
+                        count -= 2;
+                    }
+                        
+                }
+                if(childflag == true ){
+                    //cout << "Open write in"<<endl; 
+                    dup2( fd[1], 1 );
+                    close(fd[0]);  
+                }
                 //count -1 would be more ideal then 50
                 char *args[50];
                 args[0]  = (char*) command.c_str();
@@ -158,7 +273,6 @@ void Mandate::Execute()
                     args[i]  = (char*) argument[i+1].c_str();
                     i++;
                     count--;
-                    
                 }
                 args[i] = NULL;
                 if( execvp(args[0], args) == -1)
@@ -166,14 +280,56 @@ void Mandate::Execute()
                     perror("Error!");
                     exit(errno);
                 }
+                
             }
         }
         else//parent
         {   
-            do{
-                wait(&status);
-                //if(WIFEXITED(status))
-                //cout<<"child exited with = "<<WEXITSTATUS(status)<<endl;        
+           do{
+                wait(&status); 
+           
+                if(childflag == true ){   
+                    //cout << "piping "<<endl;
+                    
+                    for(int j = 1; j < count2; j++){
+                        
+                        int count3 = 0;
+                        char * arg3[20];
+                        char *str3 = argument2[j];
+                        char* token3 = strtok(str3," ");
+                        while(token3 != NULL)
+                        {
+                            
+                            arg3[count3] = token3;
+                            //cout<<count3<< arg3[count3] <<endl;
+                            count3++;
+                          
+                            token3 = strtok(NULL, " ");
+                        }
+                        arg3[count3]=NULL;
+    
+                        pid = fork();
+                        if( pid == 0){
+                            
+                            //cout<< " Read end"<<endl;
+                            dup2( fd[0] , 0);
+                            //close(fd[1]);
+                           
+                            if( execvp(arg3[0], arg3) == -1)
+                            {
+                                perror("Error!");
+                                exit(errno);
+                            }
+                        }else{
+                            
+                            do{
+                                wait(&status);
+                            }while(!WIFEXITED(status) && !WIFSIGNALED(status));
+                        }
+                    
+                    }
+                }
+            
                 if (WEXITSTATUS(status) > 0)
                     setBFlag(false) ;
                 else
