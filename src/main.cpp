@@ -24,7 +24,8 @@ void print();
 void pares(Command*&, string);
 
 int main(){
-  
+    
+   
     string input;
 
     do{
@@ -108,7 +109,7 @@ void pares(Command*& cmdvec,string input){
     unsigned int size = input.size();
     for(unsigned int i = 0; i < size; i++)
     {
-        if(input.at(i) == '|' && input.at(i+1) != '|')
+        if(input.at(i) == '|' && input.at(i+1) != '|' &&input.at(i-1) != '|')
         {
             input.replace(i,1,"*");
             allpriority.push_back( priority );

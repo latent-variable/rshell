@@ -26,9 +26,10 @@ void Mandate::Execute()
 {
     //Check for test and add functionality 
     int status;
+    //int status2;
     int count = 1;
     int count2 = 0;
-    bool childflag ;
+    bool childflag= false ;
     string exec1 = this->Executeble;
     string exec2 = this->Executeble;
     string testflag = "empty";
@@ -48,13 +49,14 @@ void Mandate::Execute()
             argument2[count2] = token2;
             //cout<< argument2[count2]<<endl;
             count2++;
-            childflag = true;
+            if(count2 == 2)
+                childflag = true;
        
         
         token2 = strtok(NULL, "*");
     }
     
-   // cout << "count2: "<< count2<<endl;
+    //cout << "count2: "<< count2<<endl;
     
     char *str = const_cast<char *>(exec2.c_str());
     char* token = strtok(str," ");
@@ -155,7 +157,7 @@ void Mandate::Execute()
     else
     {
         
-        pid_t pid;
+        pid_t pid, pid2;
         pipe(fd);
         pid = fork();
         
@@ -260,7 +262,7 @@ void Mandate::Execute()
                         
                 }
                 if(childflag == true ){
-                    //cout << "Open write in"<<endl; 
+                    cout << "Open write in"<<endl; 
                     dup2( fd[1], 1 );
                     close(fd[0]);  
                 }
@@ -287,9 +289,14 @@ void Mandate::Execute()
         {   
            do{
                 wait(&status); 
+                if (WEXITSTATUS(status) > 0)
+                    setBFlag(false) ;
+                else
+                    setBFlag(true);
+                    
            
                 if(childflag == true ){   
-                    //cout << "piping "<<endl;
+                    cout << "piping "<<endl;
                     
                     for(int j = 1; j < count2; j++){
                         
@@ -308,8 +315,8 @@ void Mandate::Execute()
                         }
                         arg3[count3]=NULL;
     
-                        pid = fork();
-                        if( pid == 0){
+                        pid2 = fork();
+                        if( pid2 == 0){
                             
                             //cout<< " Read end"<<endl;
                             dup2( fd[0] , 0);
@@ -320,20 +327,18 @@ void Mandate::Execute()
                                 perror("Error!");
                                 exit(errno);
                             }
-                        }else{
                             
-                            do{
-                                wait(&status);
-                            }while(!WIFEXITED(status) && !WIFSIGNALED(status));
+                        }else{
+                            //parent sleep for 10,000 microseconds or .01 of a second
+                            unsigned int microseconds=10000;
+                            usleep(microseconds);
                         }
-                    
+                        
+                        
                     }
                 }
-            
-                if (WEXITSTATUS(status) > 0)
-                    setBFlag(false) ;
-                else
-                    setBFlag(true);
+              
+                
                 // wpid = waitpid(pid, &status, WUNTRACED);
             }while (!WIFEXITED(status) && !WIFSIGNALED(status));
         }
