@@ -52,6 +52,7 @@ class Mandate : public Base{
         Mandate(){Priority = 0; };
         Mandate(string,string);
         void Execute();
+        void runpipe(vector<char *>& commands);
         void setChild(Mandate* );
         void setExecutable(string input);
         string getExecutable();

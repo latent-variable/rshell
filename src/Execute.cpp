@@ -29,35 +29,32 @@ void Mandate::Execute()
     //int status2;
     int count = 1;
     int count2 = 0;
-    bool childflag= false ;
+    bool childflag = false ;
     string exec1 = this->Executeble;
     string exec2 = this->Executeble;
     string testflag = "empty";
     string command;
     string argument[100];
-    char* argument2[20];
+    //char* argument2[20];
+    vector<string> commands;
+    
     /////////////////////////////////////////////////////
     //add dup() and Pipe functionallity 
     ////////////////////////////////////////////////////
-    int fd[2];   //file descripter {0 stdin, 1 stdout, 2 stderr}
+    //int fd[2];   //file descripter {0 stdin, 1 stdout, 2 stderr}
     
     char* str2 = const_cast<char *>(exec1.c_str());
     char* token2 = strtok(str2,"*");
     while(token2 != NULL)
     {
-          
-            argument2[count2] = token2;
-            //cout<< argument2[count2]<<endl;
-            count2++;
-            if(count2 == 2)
-                childflag = true;
-       
-        
+        //argument2[count2] = token2;
+        commands.push_back( token2 );
+        count2++;
+        if(count2 == 2)
+            childflag = true;
         token2 = strtok(NULL, "*");
     }
-    
-    //cout << "count2: "<< count2<<endl;
-    
+
     char *str = const_cast<char *>(exec2.c_str());
     char* token = strtok(str," ");
     while(token != NULL)
@@ -69,9 +66,7 @@ void Mandate::Execute()
         }
         else
         {
-            
             argument[count] = token;
-            //cout<< argument[count] <<endl;
             count++;
        
         }
@@ -156,19 +151,16 @@ void Mandate::Execute()
     }
     else
     {
-        
-        pid_t pid, pid2;
-        pipe(fd);
+        pid_t pid;
+        //pipe(fd);
         pid = fork();
         
         if ( pid < 0  ) 
         {   
             cout <<"Error running fork."<<endl;
-           
         }
         if (pid == 0)//child
         {   
-            
             if(count==2)
             {
                 char *args[2];
@@ -184,14 +176,11 @@ void Mandate::Execute()
             {
                 //redirect output to file instead of stdout
                 for(int i= 0; i < count; i++){
-                    
-                  
                     //check all arguments for > and >> as well as for < 
                     if(argument[i] == ">" )
-                    {   
+                    {
                         int savestdout;
                         int fds;
-                        
                         if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
                         {
                             perror("Error!");
@@ -261,90 +250,127 @@ void Mandate::Execute()
                     }
                         
                 }
+                
+                if(childflag == false ){
+                    char *args[50];
+                    args[0]  = (char*) command.c_str();
+                    int i = 1;
+                    while(count > 2)
+                    {
+                        args[i]  = (char*) argument[i+1].c_str();
+                        i++;
+                        count--;
+                    }
+                    args[i] = NULL;
+                    if( execvp(args[0], args) == -1)
+                    {
+                        perror("Error!");
+                        exit(errno);
+                    }
+                }
                 if(childflag == true ){
-                    cout << "Open write in"<<endl; 
-                    dup2( fd[1], 1 );
-                    close(fd[0]);  
+                    
+                   
+                    pid_t pid;
+                   
+                    //array of pipes assuming we wont need more than 10
+                    int fds[10][2];
+                    //keeps track of pipe and commands
+                    unsigned z=0;
+  
+                    for(unsigned i = 0; i < commands.size(); i++)
+                    {
+                        
+                        if(pipe(fds[z]) < 0){
+                            perror("pipe Error!");
+                        }
+                        
+                        
+                        //cout<< "-----------Pipe "<<z <<"---------- "<<endl;
+                        
+                        pid = fork();
+                        
+                        
+                        if(pid < 0)
+                        {
+                            perror("fork Error!");
+                        }
+                        else if(pid == 0)//child
+                        {
+                            if(z != 0)//if its not the first command then get from previous command
+                            {
+                                close(fds[z-1][1]);
+                                //cout<<"read from ["<<z-1<<"][" << 0<<"]"<<endl;
+                                if(dup2(fds[z-1][0], 0) < 0)//since not its not the first command then we read
+                                {
+                                    perror("first dup Error!");
+                                }
+                            }
+                    
+                            if(z != commands.size()-1)//if its no the last command
+                            {
+                                close(fds[z][0]);
+                                //cout<<"write too ["<<z<<"][" << 1<<"]"<<endl;
+                                if(dup2(fds[z][1], 1) < 0)//since not last command we write to next command
+                                {
+                                    perror("second dup Error!");
+                                }
+                                
+                            }
+                            unsigned count3 = 0;
+                            char * arg3[20];
+                            char *str3 = const_cast<char *>(commands[z].c_str());
+                            char* token3 = strtok(str3," ><");
+                            while(token3 != NULL)
+                            {
+                                arg3[count3] = token3;
+                                //cout<<count3 << " " << arg3[count3] <<endl;
+                                count3++;
+                              
+                                token3 = strtok(NULL, " ><");
+                            }
+                            arg3[count3]=NULL;
+                            
+                            if(execvp(arg3[0], arg3) < 0)//run the commands
+                            {
+                                perror("exe Error!");
+                            }
+                        }else{//parent 
+                              
+                                 unsigned int microseconds=20000;
+                                 usleep(microseconds);
+                                 //crucial that we wait for child to finish and then close 
+                                 //the used pipes 
+                                 close(fds[z][1]);
+                                
+                        }
+                        //must increase z 
+                        z++;  
+                    }
+                        
                 }
-                //count -1 would be more ideal then 50
-                char *args[50];
-                args[0]  = (char*) command.c_str();
-                int i = 1;
-                while(count > 2)
-                {
-                    args[i]  = (char*) argument[i+1].c_str();
-                    i++;
-                    count--;
-                }
-                args[i] = NULL;
-                if( execvp(args[0], args) == -1)
-                {
-                    perror("Error!");
-                    exit(errno);
-                }
+                    
                 
             }
         }
         else//parent
-        {   
+        {
            do{
                 wait(&status); 
                 if (WEXITSTATUS(status) > 0)
                     setBFlag(false) ;
                 else
                     setBFlag(true);
-                    
-           
-                if(childflag == true ){   
-                    cout << "piping "<<endl;
-                    
-                    for(int j = 1; j < count2; j++){
-                        
-                        int count3 = 0;
-                        char * arg3[20];
-                        char *str3 = argument2[j];
-                        char* token3 = strtok(str3," ");
-                        while(token3 != NULL)
-                        {
-                            
-                            arg3[count3] = token3;
-                            //cout<<count3<< arg3[count3] <<endl;
-                            count3++;
-                          
-                            token3 = strtok(NULL, " ");
-                        }
-                        arg3[count3]=NULL;
-    
-                        pid2 = fork();
-                        if( pid2 == 0){
-                            
-                            //cout<< " Read end"<<endl;
-                            dup2( fd[0] , 0);
-                            //close(fd[1]);
-                           
-                            if( execvp(arg3[0], arg3) == -1)
-                            {
-                                perror("Error!");
-                                exit(errno);
-                            }
-                            
-                        }else{
-                            //parent sleep for 10,000 microseconds or .01 of a second
-                            unsigned int microseconds=10000;
-                            usleep(microseconds);
-                        }
-                        
-                        
-                    }
-                }
-              
-                
-                // wpid = waitpid(pid, &status, WUNTRACED);
+               
+               
+               unsigned int microseconds=10000;
+                usleep(microseconds);
+               
+            
             }while (!WIFEXITED(status) && !WIFSIGNALED(status));
         }
     }
 }
-
 void Mandate::setExecutable(string input)
 {
     this->Executeble = input;
