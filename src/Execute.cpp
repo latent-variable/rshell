@@ -337,7 +337,7 @@ void Mandate::Execute()
                             }
                         }else{//parent 
                               
-                                 unsigned int microseconds=20000;
+                                 unsigned int microseconds=30000;
                                  usleep(microseconds);
                                  //crucial that we wait for child to finish and then close 
                                  //the used pipes 
@@ -363,7 +363,7 @@ void Mandate::Execute()
                     setBFlag(true);
                
                
-               unsigned int microseconds=10000;
+               unsigned int microseconds=20000;
                 usleep(microseconds);
                
             

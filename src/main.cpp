@@ -117,14 +117,14 @@ void pares(Command*& cmdvec,string input){
         }
         if(input.at(i) == '(' )
         {
-            priority++;
-            priority2++;
+           //priority++;
+            //priority2++;
             input.replace(i,1," ");
         }
         if(input.at(i) == ')' )
         {
             c.push_back("back");  
-            priority2--;
+            //priority2--;
             input.replace (i,1," ");
         }
         if(input.at(i) == '[')
