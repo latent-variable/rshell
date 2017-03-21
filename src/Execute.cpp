@@ -349,7 +349,8 @@ void Mandate::Execute()
                             
                             if(z == commands.size()-1){
                                 for(unsigned i = 0; i< count3; i++ ){
-                                     if(*arg3[i] == '>' )
+                                     string t = arg3[i];
+                                     if(t == ">" )
                                     {
                                         int savestdout;
                                         int fds;
@@ -372,7 +373,7 @@ void Mandate::Execute()
                                         }
                                         arg3[i]=NULL;
                                     }
-                                    else if(*arg3[i] == '>'+'>')
+                                    else if(t == ">>")
                                     {   
                                         int savestdout;
                                         int fds;

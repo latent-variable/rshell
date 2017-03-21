@@ -19,3 +19,4 @@ echo \test the given \test \case \for this assigment && sleep 2
 
 cat < file1 | tr A-Z a-z | tee file2 | tr a-z A-Z > file1
 
+rm file1 file2
