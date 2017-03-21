@@ -13,6 +13,9 @@ sleep 1; echo now copy file 2 to file 1
 cat file2  > file1 
 
 sleep 1; cat file1 | tee file2 && (echo include pipes  && echo connectors directions && precedence)
+cat file1 | tr a-z A-Z | tee file1
+ls > file1 && cal >> file1 
+echo \test the given \test \case \for this assigment && sleep 2
 
+cat < file1 | tr A-Z a-z | tee file2 | tr a-z A-Z > file1
 
-rm file1 file2

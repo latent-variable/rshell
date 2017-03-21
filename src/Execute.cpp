@@ -174,84 +174,84 @@ void Mandate::Execute()
             }
             else
             {
-                //redirect output to file instead of stdout
-                for(int i= 0; i < count; i++){
-                    //check all arguments for > and >> as well as for < 
-                    if(argument[i] == ">" )
-                    {
-                        int savestdout;
-                        int fds;
-                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
-                        {
-                            perror("Error!");
-                        }
-                        
-                        close(1);
-                        
-                        if((fds = open(argument[i+1].c_str(),O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR) < 0))// opens file and the file descriptor is given to fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        count -= 2;
-                    }
-                    else if(argument[i] == ">>"  )
-                    {   
-                        int savestdout;
-                        int fds;
-                        
-                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
-                        {
-                            perror("Error!");
-                        }
-                        
-                        close(1);
-                        
-                        if((fds = open(argument[i+1].c_str(),O_WRONLY | O_APPEND) < 0))// opens file and the file descriptor is given to fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        count -= 2;
-                    }
-                    else if( argument[i] == "<" )
-                    {
-                        int savestdin;
-                        int fds;
-                        
-                        if((savestdin = dup(0) < 0))// creates duplicate of stdin and stores it in savestdout
-                        {
-                            perror("Error!");
-                        }
-                        
-                        close(0);
-                        
-                        if((fds = open(argument[i+1].c_str(),O_RDONLY ) < 0))// opens file and the file descriptor is given to fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        if(dup2(fds,savestdin) < 0) // replaces stdin with new file fds
-                        {
-                            perror("Error!");
-                        }
-                        
-                        count -= 2;
-                    }
-                        
-                }
-                
                 if(childflag == false ){
+                    //redirect output to file instead of stdout
+                    for(int i= 0; i < count; i++){
+                        //check all arguments for > and >> as well as for < 
+                        if(argument[i] == ">" )
+                        {
+                            int savestdout;
+                            int fds;
+                            if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                            {
+                                perror("Error!");
+                            }
+                            
+                            close(1);
+                            
+                            if((fds = open(argument[i+1].c_str(),O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR) < 0))// opens file and the file descriptor is given to fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            count -= 2;
+                        }
+                        else if(argument[i] == ">>"  )
+                        {   
+                            int savestdout;
+                            int fds;
+                            
+                            if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                            {
+                                perror("Error!");
+                            }
+                            
+                            close(1);
+                            
+                            if((fds = open(argument[i+1].c_str(),O_WRONLY | O_APPEND) < 0))// opens file and the file descriptor is given to fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            count -= 2;
+                        }
+                        else if( argument[i] == "<" )
+                        {
+                            int savestdin;
+                            int fds;
+                            
+                            if((savestdin = dup(0) < 0))// creates duplicate of stdin and stores it in savestdout
+                            {
+                                perror("Error!");
+                            }
+                            
+                            close(0);
+                            
+                            if((fds = open(argument[i+1].c_str(),O_RDONLY ) < 0))// opens file and the file descriptor is given to fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            if(dup2(fds,savestdin) < 0) // replaces stdin with new file fds
+                            {
+                                perror("Error!");
+                            }
+                            
+                            count -= 2;
+                        }
+                            
+                    }
+   
                     char *args[50];
                     args[0]  = (char*) command.c_str();
                     int i = 1;
@@ -264,15 +264,16 @@ void Mandate::Execute()
                     args[i] = NULL;
                     if( execvp(args[0], args) == -1)
                     {
-                        perror("Error!");
+                        perror("1Error!");
                         exit(errno);
                     }
                 }
-                if(childflag == true ){
-                    
-                   
+                
+                if(childflag == true )
+                {
+
                     pid_t pid;
-                   
+                    
                     //array of pipes assuming we wont need more than 10
                     int fds[10][2];
                     //keeps track of pipe and commands
@@ -285,11 +286,9 @@ void Mandate::Execute()
                             perror("pipe Error!");
                         }
                         
-                        
                         //cout<< "-----------Pipe "<<z <<"---------- "<<endl;
                         
                         pid = fork();
-                        
                         
                         if(pid < 0)
                         {
@@ -319,38 +318,105 @@ void Mandate::Execute()
                             }
                             unsigned count3 = 0;
                             char * arg3[20];
-                            char *str3 = const_cast<char *>(commands[z].c_str());
-                            char* token3 = strtok(str3," ><");
-                            while(token3 != NULL)
-                            {
-                                arg3[count3] = token3;
-                                //cout<<count3 << " " << arg3[count3] <<endl;
-                                count3++;
-                              
-                                token3 = strtok(NULL, " ><");
+                            
+                            if (z == commands.size()-1){
+                                char *str3 = const_cast<char *>(commands[z].c_str());
+                                char* token3 = strtok(str3," ");
+                                while(token3 != NULL)
+                                {
+                                    arg3[count3] = token3;
+                                    //cout<< z <<count3 << " " << arg3[count3] << ":" <<endl;
+                                    count3++;
+                                    token3 = strtok(NULL, " ");
+                             
+                                }
+                                arg3[count3] = NULL;
+                            }else if (z != commands.size()-1){ 
+                                
+                                char *str3 = const_cast<char *>(commands[z].c_str());
+                                char* token3 = strtok(str3," ><");
+                                while(token3 != NULL)
+                                {
+                                    arg3[count3] = token3;
+                                    //cout<< z <<count3 << " " << arg3[count3] << ":" <<endl;
+                                    count3++;
+                                   
+                                    token3 = strtok(NULL, " ><");
+                                    
+                                }
+                                arg3[count3] = NULL;
                             }
-                            arg3[count3]=NULL;
+                            
+                            if(z == commands.size()-1){
+                                for(unsigned i = 0; i< count3; i++ ){
+                                     if(*arg3[i] == '>' )
+                                    {
+                                        int savestdout;
+                                        int fds;
+                                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                                        {
+                                            perror("aError!");
+                                        }
+                                        
+                                        //close(fds[z][1]);
+                                        close(1);
+                                        
+                                        if((fds = open(arg3[i+1],O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR) < 0))// opens file and the file descriptor is given to fds
+                                        {
+                                            perror("bError!");
+                                        }
+                                        
+                                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                                        {
+                                            perror("cError!");
+                                        }
+                                        arg3[i]=NULL;
+                                    }
+                                    else if(*arg3[i] == '>'+'>')
+                                    {   
+                                        int savestdout;
+                                        int fds;
+                                        
+                                        if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
+                                        {
+                                            perror("dError!");
+                                        }
+                                        //close(fds[z][1]);
+                                        close(1);
+                                        
+                                        if((fds = open(arg3[i+1],O_WRONLY | O_APPEND) < 0))// opens file and the file descriptor is given to fds
+                                        {
+                                            perror("fError!");
+                                        }
+                                        
+                                        if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
+                                        {
+                                            perror("gError!");
+                                        }
+                                        
+                                        arg3[i]=NULL;
+                                    }
+                                }
+                            }
                             
                             if(execvp(arg3[0], arg3) < 0)//run the commands
                             {
                                 perror("exe Error!");
                             }
-                        }else{//parent 
-                              
-                                 unsigned int microseconds=30000;
-                                 usleep(microseconds);
-                                 //crucial that we wait for child to finish and then close 
-                                 //the used pipes 
-                                 close(fds[z][1]);
-                                
+                        }
+                        else//parent
+                        {
+                            while(waitpid(0,0,0) < 0);
+                            /*unsigned int microseconds=30000;
+                            usleep(microseconds);*/
+                            //crucial that we wait for child to finish and then close 
+                            //the used pipes 
+                            close(fds[z][1]);
                         }
                         //must increase z 
                         z++;  
                     }
-                        
                 }
-                    
-                
             }
         }
         else//parent
@@ -362,15 +428,14 @@ void Mandate::Execute()
                 else
                     setBFlag(true);
                
-               
                unsigned int microseconds=20000;
                 usleep(microseconds);
                
-            
             }while (!WIFEXITED(status) && !WIFSIGNALED(status));
         }
     }
 }
+
 void Mandate::setExecutable(string input)
 {
     this->Executeble = input;
