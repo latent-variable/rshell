@@ -21,3 +21,14 @@ sleep 1; echo now all at one
 sleep 1; cal > out && ls -a >> out && ls >> out && cat < file1  
 sleep 3 && echo finally remove file 
 rm file1
+
+sleep 1
+touch testfile ; echo created new flie
+sleep 1
+echo echoing this into file > testfile && echo and should have this >> tesfile
+sleep 1
+cat < testfile && echo rewrote into file > testfile
+sleep 1
+echo added more >> testfile && cat < testfile
+sleep 1
+rm testfile

@@ -160,7 +160,7 @@ void Mandate::Execute()
             cout <<"Error running fork."<<endl;
         }
         if (pid == 0)//child
-        {   
+        {
             if(count==2)
             {
                 char *args[2];
@@ -191,7 +191,7 @@ void Mandate::Execute()
                             
                             if((fds = open(argument[i+1].c_str(),O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR) < 0))// opens file and the file descriptor is given to fds
                             {
-                                perror("Error!");
+                                perror("open1Error!");
                             }
                             
                             if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
@@ -208,7 +208,7 @@ void Mandate::Execute()
                             
                             if((savestdout = dup(1) < 0))// creates duplicate of stdout and stores it in savestdout
                             {
-                                perror("Error!");
+                                perror("open2Error!");
                             }
                             
                             close(1);
@@ -220,7 +220,7 @@ void Mandate::Execute()
                             
                             if(dup2(fds,savestdout) < 0)// replaces stdout with new file fds
                             {
-                                perror("Error!");
+                                perror("open3Error!");
                             }
                             
                             count -= 2;
@@ -272,7 +272,7 @@ void Mandate::Execute()
                 if(childflag == true )
                 {
 
-                    pid_t pid;
+                    pid_t pid2;
                     
                     //array of pipes assuming we wont need more than 10
                     int fds[10][2];
@@ -288,13 +288,13 @@ void Mandate::Execute()
                         
                         //cout<< "-----------Pipe "<<z <<"---------- "<<endl;
                         
-                        pid = fork();
+                        pid2 = fork();
                         
-                        if(pid < 0)
+                        if(pid2 < 0)
                         {
                             perror("fork Error!");
                         }
-                        else if(pid == 0)//child
+                        else if(pid2 == 0)//child
                         {
                             if(z != 0)//if its not the first command then get from previous command
                             {
@@ -407,12 +407,13 @@ void Mandate::Execute()
                         }
                         else//parent
                         {
-                            while(waitpid(0,0,0) < 0);
-                            /*unsigned int microseconds=30000;
-                            usleep(microseconds);*/
+                            //while(waitpid(0,0,0) < 0);
+                            unsigned int microseconds=30000;
+                            usleep(microseconds);
                             //crucial that we wait for child to finish and then close 
                             //the used pipes 
                             close(fds[z][1]);
+                            
                         }
                         //must increase z 
                         z++;  
@@ -429,7 +430,7 @@ void Mandate::Execute()
                 else
                     setBFlag(true);
                
-               unsigned int microseconds=20000;
+                unsigned int microseconds=30000;
                 usleep(microseconds);
                
             }while (!WIFEXITED(status) && !WIFSIGNALED(status));
