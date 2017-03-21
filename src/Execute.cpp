@@ -407,9 +407,9 @@ void Mandate::Execute()
                         }
                         else//parent
                         {
-                            //while(waitpid(0,0,0) < 0);
-                            unsigned int microseconds=30000;
-                            usleep(microseconds);
+                            while(waitpid(0,0,0) < 0);
+                            //unsigned int microseconds=30000;
+                            //usleep(microseconds);
                             //crucial that we wait for child to finish and then close 
                             //the used pipes 
                             close(fds[z][1]);
